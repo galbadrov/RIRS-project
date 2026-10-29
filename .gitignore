@@ -1,0 +1,15 @@
+# Odvisnosti
+node_modules/
+
+# Build datoteke
+dist/
+build/
+
+# Okoljske spremenljivke
+.env
+
+# Dnevniki
+*.log
+npm-debug.log*
+
+.DS_Store
