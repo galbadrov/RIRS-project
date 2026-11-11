@@ -3,6 +3,14 @@ import { Link, useNavigate } from "react-router-dom";
 
 import buildManagerLogo from "@/public/buildmanager.png";
 
+const loginErrorMessages: Record<string, string> = {
+  VALIDATION_ERROR: "Vnesite e-poštni naslov in geslo.",
+  INVALID_CREDENTIALS: "E-poštni naslov ali geslo ni pravilno.",
+  INACTIVE_ACCOUNT: "Uporabniški račun ni aktiven.",
+  ACCESS_DENIED: "Uporabniški račun nima dostopa do aplikacije.",
+  SERVICE_ERROR: "Prijava trenutno ni mogoča. Poskusite znova pozneje.",
+};
+
 export default function Login() {
   const navigate = useNavigate();
   const [error, setError] = useState("");
@@ -32,11 +40,20 @@ export default function Login() {
         refreshToken?: string;
         expiresAt?: number | null;
         user?: unknown;
-        message?: string;
+        code?: string;
       };
 
-      if (!response.ok || !result.accessToken || !result.refreshToken) {
-        throw new Error(result.message ?? "Prijava ni uspela.");
+      if (!response.ok) {
+        setError(
+          loginErrorMessages[result.code ?? ""] ??
+            "Prijava ni uspela. Poskusite znova.",
+        );
+        return;
+      }
+
+      if (!result.accessToken || !result.refreshToken) {
+        setError("Prijava ni uspela. Poskusite znova.");
+        return;
       }
 
       localStorage.setItem("accessToken", result.accessToken);
@@ -44,12 +61,8 @@ export default function Login() {
       localStorage.setItem("expiresAt", String(result.expiresAt ?? ""));
       localStorage.setItem("user", JSON.stringify(result.user));
       navigate("/", { replace: true });
-    } catch (submitError) {
-      setError(
-        submitError instanceof Error
-          ? submitError.message
-          : "Prijava ni uspela. Poskusite znova.",
-      );
+    } catch {
+      setError("Povezava s strežnikom ni uspela. Poskusite znova pozneje.");
     } finally {
       setIsSubmitting(false);
     }

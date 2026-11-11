@@ -36,7 +36,10 @@ export async function login(req: Request, res: Response): Promise<void> {
     !email.trim() ||
     !password
   ) {
-    res.status(400).json({ message: "Vnesite e-poštni naslov in geslo." });
+    res.status(400).json({
+      code: "VALIDATION_ERROR",
+      message: "Vnesite e-poštni naslov in geslo.",
+    });
     return;
   }
 
@@ -46,14 +49,19 @@ export async function login(req: Request, res: Response): Promise<void> {
   } catch (error) {
     if (error instanceof LoginError) {
       const response = errorResponses[error.code];
-      res.status(response.status).json({ message: response.message });
+      res
+        .status(response.status)
+        .json({ code: error.code, message: response.message });
       return;
     }
 
     console.error("Nepričakovana napaka pri prijavi:", error);
     res
       .status(500)
-      .json({ message: "Prijava trenutno ni mogoča. Poskusite znova pozneje." });
+      .json({
+        code: "SERVICE_ERROR",
+        message: "Prijava trenutno ni mogoča. Poskusite znova pozneje.",
+      });
   }
 }
 
