@@ -28,10 +28,10 @@ Ne more: Ustvarjati in načrtovati projektov, dodeljevati zaposlenih, evidentira
 - Načrtovanje projektov in določanje rokov izvedbe + podrobnosti/statusov (MVP)
 - Dodeljevanje zaposlenih na projekt (MVP)
 - Beleženje opravljenih delovnih ur po projektu (MVP)
-- Evidentiranje porabljenega materiala (MVP)
+- Upravljanje strank in njihovih kontaktnih podatkov (MVP)
 - Samodejni izračun stroškov projekta (MVP)
+- Evidentiranje porabljenega materiala
 - Generiranje računov iz evidentiranih podatkov gradnje
-- Upravljanje strank in njihovih kontaktnih podatkov
 - pošiljanje generiranih računov strankam
 - prikaz projektov na google maps (API)
 - Spremljanje donosnosti posameznih projektov (dolocena zacetna cena projekta - stroski -> izracunamo marzo/profit)
