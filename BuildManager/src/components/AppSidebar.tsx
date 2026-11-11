@@ -1,4 +1,10 @@
-import { LayoutDashboard, LogOut, Users } from "lucide-react";
+import {
+  Building2,
+  FolderKanban,
+  LayoutDashboard,
+  LogOut,
+  Users,
+} from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
 import buildManagerLogo from "@/public/buildmanager.png";
@@ -78,17 +84,41 @@ export default function AppSidebar() {
                 </SidebarMenuButton>
               </SidebarMenuItem>
               {isAdmin && (
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={pathname === "/racuni"}
-                    tooltip='Računi'>
-                    <Link to='/racuni'>
-                      <Users />
-                      <span>Računi</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
+                <>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={pathname === "/stranke"}
+                      tooltip='Stranke'>
+                      <Link to='/stranke'>
+                        <Building2 />
+                        <span>Stranke</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={pathname.startsWith("/projekti")}
+                      tooltip='Projekti'>
+                      <Link to='/projekti'>
+                        <FolderKanban />
+                        <span>Projekti</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={pathname === "/racuni"}
+                      tooltip='Računi'>
+                      <Link to='/racuni'>
+                        <Users />
+                        <span>Računi</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </>
               )}
             </SidebarMenu>
           </SidebarGroupContent>

@@ -124,23 +124,23 @@ jo dodajte pripadajočim Issues. Spodnji zapisi so pripravljeni za ločen vnos v
 
 **Oznaka:** `US-06`
 
-## US-07 – Evidentiranje porabljenega materiala
+## US-07 – Upravljanje strank
 
-### Issue: Priprava kataloga materialov
+### [Issue #21: Priprava upravljanja strank](https://github.com/galbadrov/RIRS-project/issues/21)
 
-**Opis:** Omogočiti shranjevanje in pridobivanje materialov z nazivom, enoto ter trenutno ceno na enoto.
-
-**Oznaka:** `US-07`
-
-### Issue: Obrazec za vnos porabe materiala
-
-**Opis:** Projektnemu vodji omogočiti izbiro materiala iz kataloga ter vnos datuma in porabljene količine za projekt, ki ga vodi.
+**Opis:** Omogočiti shranjevanje in pridobivanje strank.
 
 **Oznaka:** `US-07`
 
-### Issue: Izračun in shranjevanje stroška materiala
+### [Issue #22: Obrazec za ustvarjanje stranke](https://github.com/galbadrov/RIRS-project/issues/22)
 
-**Opis:** Preveriti pozitivno količino, shraniti trenutno ceno na enoto in izračunati strošek posameznega vnosa porabe.
+**Opis:** Omogočiti ustvarjanje stranke s pomočjo komponente Sheet.
+
+**Oznaka:** `US-07`
+
+### [Issue #23: Prikaz strank v tabeli](https://github.com/galbadrov/RIRS-project/issues/23)
+
+**Opis:** Prikazati stranke v tabeli enako kot projekte.
 
 **Oznaka:** `US-07`
 

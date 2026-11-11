@@ -51,7 +51,9 @@ export const AnyNull = runtime.AnyNull
 
 
 export const ModelName = {
-  Zaposleni: 'Zaposleni'
+  Zaposleni: 'Zaposleni',
+  Stranka: 'Stranka',
+  Projekt: 'Projekt'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -84,6 +86,36 @@ export const ZaposleniScalarFieldEnum = {
 export type ZaposleniScalarFieldEnum = (typeof ZaposleniScalarFieldEnum)[keyof typeof ZaposleniScalarFieldEnum]
 
 
+export const StrankaScalarFieldEnum = {
+  id: 'id',
+  naziv: 'naziv',
+  email: 'email',
+  telefonskaStevilka: 'telefonskaStevilka',
+  naslov: 'naslov',
+  davcnaStevilka: 'davcnaStevilka'
+} as const
+
+export type StrankaScalarFieldEnum = (typeof StrankaScalarFieldEnum)[keyof typeof StrankaScalarFieldEnum]
+
+
+export const ProjektScalarFieldEnum = {
+  id: 'id',
+  idStranka: 'idStranka',
+  idVodjaProjekta: 'idVodjaProjekta',
+  naziv: 'naziv',
+  opis: 'opis',
+  lokacija: 'lokacija',
+  latitude: 'latitude',
+  longitude: 'longitude',
+  datumZacetka: 'datumZacetka',
+  datumZakljucka: 'datumZakljucka',
+  dogovorjenaCena: 'dogovorjenaCena',
+  status: 'status'
+} as const
+
+export type ProjektScalarFieldEnum = (typeof ProjektScalarFieldEnum)[keyof typeof ProjektScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -98,4 +130,12 @@ export const QueryMode = {
 } as const
 
 export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+
+
+export const NullsOrder = {
+  first: 'first',
+  last: 'last'
+} as const
+
+export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 
