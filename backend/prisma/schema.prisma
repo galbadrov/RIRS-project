@@ -10,14 +10,48 @@ datasource db {
 }
 
 model Zaposleni {
-  id             Int     @id @default(autoincrement()) @map("id_Zaposleni")
-  supabaseUid    String  @unique @db.Uuid
+  id             Int       @id @default(autoincrement()) @map("id_Zaposleni")
+  supabaseUid    String    @unique @db.Uuid
   ime            String
   priimek        String
-  email          String  @unique
+  email          String    @unique
   vloga          String
-  urnaPostavka   Decimal @db.Decimal(10, 2)
-  aktiven        Boolean @default(true)
+  urnaPostavka   Decimal   @db.Decimal(10, 2)
+  aktiven        Boolean   @default(true)
+  vodeniProjekti Projekt[] @relation("VodjaProjekta")
 
   @@map("Zaposleni")
+}
+
+model Stranka {
+  id                 Int       @id @default(autoincrement()) @map("id_Stranka")
+  naziv              String
+  email              String    @unique
+  telefonskaStevilka String?
+  naslov             String
+  davcnaStevilka     String?   @unique
+  projekti           Projekt[]
+
+  @@map("Stranka")
+}
+
+model Projekt {
+  id              Int       @id @default(autoincrement()) @map("id_Projekt")
+  idStranka       Int       @map("id_Stranka")
+  idVodjaProjekta Int       @map("id_VodjaProjekta")
+  naziv           String
+  opis            String    @db.Text
+  lokacija        String
+  latitude        Decimal?  @db.Decimal(9, 6)
+  longitude       Decimal?  @db.Decimal(9, 6)
+  datumZacetka    DateTime  @db.Date
+  datumZakljucka  DateTime  @db.Date
+  dogovorjenaCena Decimal   @db.Decimal(12, 2)
+  status          String    @default("NACRTOVAN")
+  stranka         Stranka   @relation(fields: [idStranka], references: [id], onDelete: Restrict)
+  vodjaProjekta   Zaposleni @relation("VodjaProjekta", fields: [idVodjaProjekta], references: [id], onDelete: Restrict)
+
+  @@index([idStranka])
+  @@index([idVodjaProjekta])
+  @@map("Projekt")
 }

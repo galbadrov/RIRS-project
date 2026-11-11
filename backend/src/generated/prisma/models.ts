@@ -9,4 +9,6 @@
  * 🟢 You can import this file directly.
  */
 export type * from './models/Zaposleni'
+export type * from './models/Stranka'
+export type * from './models/Projekt'
 export type * from './commonInputTypes'

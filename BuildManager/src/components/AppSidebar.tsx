@@ -1,4 +1,4 @@
-import { LayoutDashboard, LogOut, Users } from "lucide-react";
+import { FolderKanban, LayoutDashboard, LogOut, Users } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
 import buildManagerLogo from "@/public/buildmanager.png";
@@ -78,17 +78,30 @@ export default function AppSidebar() {
                 </SidebarMenuButton>
               </SidebarMenuItem>
               {isAdmin && (
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={pathname === "/racuni"}
-                    tooltip='Računi'>
-                    <Link to='/racuni'>
-                      <Users />
-                      <span>Računi</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
+                <>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={pathname === "/projekti"}
+                      tooltip='Projekti'>
+                      <Link to='/projekti'>
+                        <FolderKanban />
+                        <span>Projekti</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={pathname === "/racuni"}
+                      tooltip='Računi'>
+                      <Link to='/racuni'>
+                        <Users />
+                        <span>Računi</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </>
               )}
             </SidebarMenu>
           </SidebarGroupContent>
