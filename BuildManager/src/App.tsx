@@ -2,6 +2,7 @@ import { Route, Routes } from "react-router-dom";
 import AuthProvider from "./components/AuthProvider";
 import Layout from "./components/Layout";
 import Accounts from "./pages/Accounts";
+import Clients from "./pages/Clients";
 import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -20,6 +21,7 @@ export default function App() {
         }>
         <Route index element={<Dashboard />} />
         <Route path='racuni' element={<Accounts />} />
+        <Route path='stranke' element={<Clients />} />
         <Route path='projekti' element={<Projects />} />
       </Route>
     </Routes>

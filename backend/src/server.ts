@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 
 import authRouter from "./routes/authRoute";
+import clientRouter from "./routes/clientRoute";
 import employeeRouter from "./routes/employeeRoute";
 import projectRouter from "./routes/projectRoute";
 
@@ -13,6 +14,7 @@ app.use(express.json());
 app.use(cors());
 
 app.use("/api/auth", authRouter);
+app.use("/api/clients", clientRouter);
 app.use("/api/employees", employeeRouter);
 app.use("/api/projects", projectRouter);
 
