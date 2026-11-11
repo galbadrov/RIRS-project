@@ -99,7 +99,7 @@ export default function AppSidebar() {
                   <SidebarMenuItem>
                     <SidebarMenuButton
                       asChild
-                      isActive={pathname === "/projekti"}
+                      isActive={pathname.startsWith("/projekti")}
                       tooltip='Projekti'>
                       <Link to='/projekti'>
                         <FolderKanban />

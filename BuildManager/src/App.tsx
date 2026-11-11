@@ -5,6 +5,7 @@ import Accounts from "./pages/Accounts";
 import Clients from "./pages/Clients";
 import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
+import ProjectDetails from "./pages/ProjectDetails";
 import Register from "./pages/Register";
 import { Projects } from "./pages/Projects";
 
@@ -23,6 +24,7 @@ export default function App() {
         <Route path='racuni' element={<Accounts />} />
         <Route path='stranke' element={<Clients />} />
         <Route path='projekti' element={<Projects />} />
+        <Route path='projekti/:id/detajli' element={<ProjectDetails />} />
       </Route>
     </Routes>
   );

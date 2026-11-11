@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import {
   createProject,
+  getProject,
   getProjectPageData,
   ProjectError,
 } from "../models/projectModel";
@@ -25,6 +26,36 @@ export async function listProjects(_req: Request, res: Response): Promise<void> 
     res.status(500).json({
       code: "SERVICE_ERROR",
       message: "Projektov trenutno ni mogoče pridobiti.",
+    });
+  }
+}
+
+export async function showProject(req: Request, res: Response): Promise<void> {
+  const id = Number(req.params.id);
+
+  if (!Number.isInteger(id) || id <= 0) {
+    res.status(400).json({
+      code: "VALIDATION_ERROR",
+      message: "Identifikator projekta ni veljaven.",
+    });
+    return;
+  }
+
+  try {
+    res.json({ project: await getProject(id) });
+  } catch (error) {
+    if (error instanceof ProjectError && error.code === "NOT_FOUND") {
+      res.status(404).json({
+        code: error.code,
+        message: "Projekt ne obstaja.",
+      });
+      return;
+    }
+
+    console.error("Napaka pri pridobivanju projekta:", error);
+    res.status(500).json({
+      code: "SERVICE_ERROR",
+      message: "Projekta trenutno ni mogoče pridobiti.",
     });
   }
 }

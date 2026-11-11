@@ -11,7 +11,10 @@ type NewProject = {
   dogovorjenaCena: number;
 };
 
-export type ProjectErrorCode = "CLIENT_NOT_FOUND" | "MANAGER_NOT_AVAILABLE";
+export type ProjectErrorCode =
+  | "CLIENT_NOT_FOUND"
+  | "MANAGER_NOT_AVAILABLE"
+  | "NOT_FOUND";
 
 export class ProjectError extends Error {
   constructor(public readonly code: ProjectErrorCode) {
@@ -94,6 +97,16 @@ export async function getProjectPageData() {
       priimek: manager.priimek,
     })),
   };
+}
+
+export async function getProject(id: number) {
+  const project = await prisma.projekt.findUnique({
+    where: { id },
+    select: projectSelection,
+  });
+
+  if (!project) throw new ProjectError("NOT_FOUND");
+  return serializeProject(project);
 }
 
 export async function createProject(input: NewProject) {

@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { FolderKanban, Plus } from "lucide-react";
+import { FolderKanban, Info, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 import { Badge } from "@/components/ui/badge";
@@ -45,6 +45,7 @@ export function Projects() {
   const [isLoading, setIsLoading] = useState(true);
   const [pageError, setPageError] = useState("");
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [form, setForm] = useState(initialForm);
   const [formError, setFormError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -214,6 +215,97 @@ export function Projects() {
         </Sheet>
       </div>
 
+      <Sheet
+        open={selectedProject !== null}
+        onOpenChange={(open) => {
+          if (!open) setSelectedProject(null);
+        }}>
+        <SheetContent className='overflow-y-auto sm:max-w-lg'>
+          <SheetHeader>
+            <div className='flex items-center gap-2 pr-8'>
+              <SheetTitle>{selectedProject?.naziv}</SheetTitle>
+              <Badge variant='secondary'>
+                {selectedProject?.status === "NACRTOVAN"
+                  ? "Načrtovan"
+                  : selectedProject?.status}
+              </Badge>
+            </div>
+            <SheetDescription>
+              Podrobnosti izbranega projekta.
+            </SheetDescription>
+          </SheetHeader>
+
+          {selectedProject && (
+            <dl className='space-y-5 px-4 pb-6'>
+              <div>
+                <dt className='text-sm font-medium text-muted-foreground'>
+                  Opis
+                </dt>
+                <dd className='mt-1 whitespace-pre-wrap text-sm'>
+                  {selectedProject.opis}
+                </dd>
+              </div>
+              <div className='grid gap-5 sm:grid-cols-2'>
+                <div>
+                  <dt className='text-sm font-medium text-muted-foreground'>
+                    Stranka
+                  </dt>
+                  <dd className='mt-1'>{selectedProject.stranka.naziv}</dd>
+                </div>
+                <div>
+                  <dt className='text-sm font-medium text-muted-foreground'>
+                    Projektni vodja
+                  </dt>
+                  <dd className='mt-1'>
+                    {selectedProject.vodjaProjekta.ime}{" "}
+                    {selectedProject.vodjaProjekta.priimek}
+                  </dd>
+                </div>
+              </div>
+              <div>
+                <dt className='text-sm font-medium text-muted-foreground'>
+                  Lokacija
+                </dt>
+                <dd className='mt-1'>{selectedProject.lokacija}</dd>
+              </div>
+              <div className='grid gap-5 sm:grid-cols-2'>
+                <div>
+                  <dt className='text-sm font-medium text-muted-foreground'>
+                    Datum začetka
+                  </dt>
+                  <dd className='mt-1'>
+                    {new Intl.DateTimeFormat("sl-SI").format(
+                      new Date(`${selectedProject.datumZacetka}T00:00:00`),
+                    )}
+                  </dd>
+                </div>
+                <div>
+                  <dt className='text-sm font-medium text-muted-foreground'>
+                    Datum zaključka
+                  </dt>
+                  <dd className='mt-1'>
+                    {new Intl.DateTimeFormat("sl-SI").format(
+                      new Date(`${selectedProject.datumZakljucka}T00:00:00`),
+                    )}
+                  </dd>
+                </div>
+              </div>
+              <div>
+                <dt className='text-sm font-medium text-muted-foreground'>
+                  Dogovorjena cena
+                </dt>
+                <dd className='mt-1 text-lg font-semibold'>
+                  {new Intl.NumberFormat("sl-SI", {
+                    style: "currency",
+                    currency: "EUR",
+                  }).format(selectedProject.dogovorjenaCena)}
+                </dd>
+              </div>
+            </dl>
+          )}
+        </SheetContent>
+      </Sheet>
+
       <div className='mt-6 overflow-hidden rounded-xl border bg-white shadow-sm'>
         {isLoading ? <p className='p-6 text-sm text-slate-600'>Nalaganje projektov ...</p> : pageError ? (
           <p className='p-6 text-sm text-red-700' role='alert'>{pageError}</p>
@@ -225,15 +317,46 @@ export function Projects() {
           </div>
         ) : (
           <Table>
-            <TableHeader><TableRow><TableHead>Projekt</TableHead><TableHead>Stranka</TableHead><TableHead>Projektni vodja</TableHead><TableHead>Rok</TableHead><TableHead>Cena</TableHead><TableHead>Status</TableHead></TableRow></TableHeader>
+            <TableHeader><TableRow><TableHead>Projekt</TableHead><TableHead>Stranka</TableHead><TableHead>Projektni vodja</TableHead><TableHead>Rok</TableHead><TableHead>Cena</TableHead><TableHead>Status</TableHead><TableHead><span className='sr-only'>Podrobnosti</span></TableHead></TableRow></TableHeader>
             <TableBody>{projects.map((project) => (
-              <TableRow key={project.id_Projekt}>
+              <TableRow
+                key={project.id_Projekt}
+                className='cursor-pointer focus-visible:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'
+                role='button'
+                tabIndex={0}
+                onClick={() => navigate(`/projekti/${project.id_Projekt}/detajli`)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    navigate(`/projekti/${project.id_Projekt}/detajli`);
+                  }
+                }}>
                 <TableCell><p className='font-medium'>{project.naziv}</p><p className='text-xs text-muted-foreground'>{project.lokacija}</p></TableCell>
                 <TableCell>{project.stranka.naziv}</TableCell>
                 <TableCell>{project.vodjaProjekta.ime} {project.vodjaProjekta.priimek}</TableCell>
                 <TableCell>{new Intl.DateTimeFormat("sl-SI").format(new Date(`${project.datumZakljucka}T00:00:00`))}</TableCell>
                 <TableCell>{new Intl.NumberFormat("sl-SI", { style: "currency", currency: "EUR" }).format(project.dogovorjenaCena)}</TableCell>
-                <TableCell><Badge variant='secondary'>Načrtovan</Badge></TableCell>
+                <TableCell>
+                  <Badge variant='secondary'>
+                    {project.status === "NACRTOVAN"
+                      ? "Načrtovan"
+                      : project.status}
+                  </Badge>
+                </TableCell>
+                <TableCell className='text-right'>
+                  <Button
+                    type='button'
+                    size='icon-sm'
+                    variant='ghost'
+                    aria-label={`Hitri pregled projekta ${project.naziv}`}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      setSelectedProject(project);
+                    }}
+                    onKeyDown={(event) => event.stopPropagation()}>
+                    <Info />
+                  </Button>
+                </TableCell>
               </TableRow>
             ))}</TableBody>
           </Table>
