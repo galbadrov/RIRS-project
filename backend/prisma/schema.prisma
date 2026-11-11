@@ -1,0 +1,23 @@
+generator client {
+  provider            = "prisma-client"
+  output              = "../src/generated/prisma"
+  moduleFormat        = "cjs"
+  importFileExtension = ""
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Zaposleni {
+  id             Int     @id @default(autoincrement()) @map("id_Zaposleni")
+  supabaseUid    String  @unique @db.Uuid
+  ime            String
+  priimek        String
+  email          String  @unique
+  vloga          String
+  urnaPostavka   Decimal @db.Decimal(10, 2)
+  aktiven        Boolean @default(true)
+
+  @@map("Zaposleni")
+}

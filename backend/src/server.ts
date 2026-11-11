@@ -1,6 +1,8 @@
 import express from "express";
 import cors from "cors";
 
+import authRouter from "./routes/authRoute";
+
 const app = express();
 const port = Number(process.env.PORT) || 3000;
 
@@ -8,9 +10,7 @@ app.use(express.json());
 
 app.use(cors());
 
-app.get("/", (_req, res) => {
-  res.send("Hello, World!");
-});
+app.use("/api/auth", authRouter);
 
 app.get("/api/health", (_req, res) => {
   res.json({ status: "OK" });

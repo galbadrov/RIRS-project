@@ -1,8 +1,60 @@
-import { Link } from "react-router-dom";
+import { useState, type FormEvent } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 import buildManagerLogo from "@/public/buildmanager.png";
 
 export default function Login() {
+  const navigate = useNavigate();
+  const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setError("");
+    setIsSubmitting(true);
+
+    const formData = new FormData(event.currentTarget);
+
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL ?? "http://localhost:3000"}/api/auth/login`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: formData.get("email"),
+            password: formData.get("password"),
+          }),
+        },
+      );
+      const result = (await response.json()) as {
+        accessToken?: string;
+        refreshToken?: string;
+        expiresAt?: number | null;
+        user?: unknown;
+        message?: string;
+      };
+
+      if (!response.ok || !result.accessToken || !result.refreshToken) {
+        throw new Error(result.message ?? "Prijava ni uspela.");
+      }
+
+      localStorage.setItem("accessToken", result.accessToken);
+      localStorage.setItem("refreshToken", result.refreshToken);
+      localStorage.setItem("expiresAt", String(result.expiresAt ?? ""));
+      localStorage.setItem("user", JSON.stringify(result.user));
+      navigate("/", { replace: true });
+    } catch (submitError) {
+      setError(
+        submitError instanceof Error
+          ? submitError.message
+          : "Prijava ni uspela. Poskusite znova.",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
   return (
     <main className='flex min-h-screen flex-col items-center justify-center bg-slate-100 px-4 py-8'>
       <section
@@ -28,9 +80,7 @@ export default function Login() {
           </p>
         </div>
 
-        <form
-          className='space-y-5'
-          onSubmit={(event) => event.preventDefault()}>
+        <form className='space-y-5' onSubmit={handleSubmit}>
           <label className='block text-sm font-semibold text-slate-900'>
             E-poštni naslov
             <input
@@ -39,6 +89,7 @@ export default function Login() {
               type='email'
               autoComplete='email'
               placeholder='ime@podjetje.si'
+              disabled={isSubmitting}
               required
             />
           </label>
@@ -51,14 +102,24 @@ export default function Login() {
               type='password'
               autoComplete='current-password'
               placeholder='Vnesite geslo'
+              disabled={isSubmitting}
               required
             />
           </label>
 
+          {error && (
+            <p
+              className='rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700'
+              role='alert'>
+              {error}
+            </p>
+          )}
+
           <button
-            className='h-12 w-full rounded-lg bg-slate-800 font-bold text-white transition hover:bg-slate-950 focus:outline-none focus-visible:ring-3 focus-visible:ring-slate-800/25'
+            className='h-12 w-full rounded-lg bg-slate-800 font-bold text-white transition hover:bg-slate-950 focus:outline-none focus-visible:ring-3 focus-visible:ring-slate-800/25 disabled:cursor-not-allowed disabled:opacity-60'
+            disabled={isSubmitting}
             type='submit'>
-            Prijava
+            {isSubmitting ? "Prijavljanje ..." : "Prijava"}
           </button>
         </form>
 
