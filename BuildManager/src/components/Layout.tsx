@@ -5,6 +5,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { Outlet } from "react-router-dom";
 
 export default function Layout() {
   return (
@@ -14,9 +15,7 @@ export default function Layout() {
         <SidebarInset className='bg-slate-100'>
           <div className='mx-auto w-full max-w-7xl p-4 sm:p-6'>
             <SidebarTrigger className='mb-6 md:hidden' />
-            <h1 className='text-2xl font-bold text-slate-900'>
-              Nadzorna plošča
-            </h1>
+            <Outlet />
           </div>
         </SidebarInset>
       </SidebarProvider>

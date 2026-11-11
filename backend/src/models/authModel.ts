@@ -1,7 +1,5 @@
-import "dotenv/config";
-import { createClient } from "@supabase/supabase-js";
-import WebSocket from "ws";
 import { prisma } from "../config/prisma";
+import { createSupabaseAuthClient } from "../config/supabase";
 
 export type EmployeeRole = "ADMIN" | "PROJECT_MANAGER" | "WORKER";
 
@@ -32,37 +30,13 @@ export class LoginError extends Error {
   }
 }
 
-function getRequiredEnvironmentVariable(name: string): string {
-  const value = process.env[name];
-
-  if (!value) {
-    throw new Error(`Manjka okoljska spremenljivka ${name}.`);
-  }
-
-  return value;
-}
-
-const supabaseUrl = getRequiredEnvironmentVariable("SUPABASE_URL");
-const supabasePublishableKey = getRequiredEnvironmentVariable(
-  "SUPABASE_PUBLISHABLE_KEY",
-);
-
 const allowedRoles: EmployeeRole[] = ["ADMIN", "PROJECT_MANAGER", "WORKER"];
 
 export async function authenticateEmployee(
   email: string,
   password: string,
 ): Promise<LoginResult> {
-  const supabaseAuth = createClient(supabaseUrl, supabasePublishableKey, {
-    realtime: {
-      transport: WebSocket as unknown as typeof globalThis.WebSocket,
-    },
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
-      detectSessionInUrl: false,
-    },
-  });
+  const supabaseAuth = createSupabaseAuthClient();
 
   const {
     data: { user, session },

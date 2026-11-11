@@ -1,10 +1,11 @@
-import { LayoutDashboard } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
+import { LayoutDashboard, LogOut, Users } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 import buildManagerLogo from "@/public/buildmanager.png";
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -17,6 +18,25 @@ import {
 
 export default function AppSidebar() {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
+  const isAdmin = (() => {
+    try {
+      const user = JSON.parse(localStorage.getItem("user") ?? "null") as {
+        vloga?: string;
+      } | null;
+      return user?.vloga === "ADMIN";
+    } catch {
+      return false;
+    }
+  })();
+
+  function handleLogout() {
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    localStorage.removeItem("expiresAt");
+    localStorage.removeItem("user");
+    navigate("/login", { replace: true });
+  }
 
   return (
     <Sidebar collapsible='icon'>
@@ -57,10 +77,34 @@ export default function AppSidebar() {
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
+              {isAdmin && (
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={pathname === "/racuni"}
+                    tooltip='Računi'>
+                    <Link to='/racuni'>
+                      <Users />
+                      <span>Računi</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+
+      <SidebarFooter className='border-t border-sidebar-border'>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton tooltip='Odjava' onClick={handleLogout}>
+              <LogOut />
+              <span>Odjava</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
 
       <SidebarRail />
     </Sidebar>
