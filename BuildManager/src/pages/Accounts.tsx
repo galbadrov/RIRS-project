@@ -29,7 +29,6 @@ import {
   SheetFooter,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
 } from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -74,6 +73,7 @@ export default function Accounts() {
   const [isLoading, setIsLoading] = useState(true);
   const [pageError, setPageError] = useState("");
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const [form, setForm] = useState(initialForm);
   const [formError, setFormError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -89,7 +89,7 @@ export default function Accounts() {
     async function loadEmployees() {
       try {
         const response = await fetch(
-          `${import.meta.env.VITE_API_URL ?? "http://localhost:3000"}/api/employees`,
+          `${import.meta.env.VITE_API_URL}/api/employees`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken") ?? ""}`,
@@ -133,6 +133,27 @@ export default function Accounts() {
     return () => controller.abort();
   }, [navigate]);
 
+  function openCreateSheet() {
+    setSelectedEmployee(null);
+    setForm(initialForm);
+    setFormError("");
+    setSheetOpen(true);
+  }
+
+  function openEditSheet(employee: Employee) {
+    setSelectedEmployee(employee);
+    setForm({
+      ime: employee.ime,
+      priimek: employee.priimek,
+      email: employee.email,
+      vloga: employee.vloga,
+      urnaPostavka: String(employee.urnaPostavka),
+      aktiven: employee.aktiven,
+    });
+    setFormError("");
+    setSheetOpen(true);
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setFormError("");
@@ -140,9 +161,9 @@ export default function Accounts() {
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL ?? "http://localhost:3000"}/api/employees`,
+        `${import.meta.env.VITE_API_URL ?? "http://localhost:3000"}/api/employees${selectedEmployee ? `/${selectedEmployee.id_Zaposleni}` : ""}`,
         {
-          method: "POST",
+          method: selectedEmployee ? "PATCH" : "POST",
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken") ?? ""}`,
             "Content-Type": "application/json",
@@ -159,24 +180,41 @@ export default function Accounts() {
         message?: string;
       };
 
-      if (!response.ok || !result.employee || !result.password) {
+      if (
+        !response.ok ||
+        !result.employee ||
+        (!selectedEmployee && !result.password)
+      ) {
         setFormError(
-          result.message ?? "Zaposlenega trenutno ni mogoče ustvariti.",
+          result.message ?? "Zaposlenega trenutno ni mogoče shraniti.",
         );
         return;
       }
 
       setEmployees((current) =>
-        [...current, result.employee!].sort((first, second) =>
+        (selectedEmployee
+          ? current.map((employee) =>
+              employee.id_Zaposleni === result.employee!.id_Zaposleni
+                ? result.employee!
+                : employee,
+            )
+          : [...current, result.employee!]
+        ).sort((first, second) =>
           `${first.priimek} ${first.ime}`.localeCompare(
             `${second.priimek} ${second.ime}`,
             "sl",
           ),
         ),
       );
-      setCredentials({ email: result.employee.email, password: result.password });
+      if (!selectedEmployee && result.password) {
+        setCredentials({
+          email: result.employee.email,
+          password: result.password,
+        });
+      }
       setForm(initialForm);
       setSheetOpen(false);
+      setSelectedEmployee(null);
     } catch {
       setFormError("Povezava s strežnikom ni uspela.");
     } finally {
@@ -205,23 +243,29 @@ export default function Accounts() {
           </p>
         </div>
 
+        <Button type='button' onClick={openCreateSheet}>
+          <Plus />
+          Nov zaposleni
+        </Button>
+
         <Sheet
           open={sheetOpen}
           onOpenChange={(open) => {
             setSheetOpen(open);
-            if (!open) setFormError("");
+            if (!open) {
+              setFormError("");
+              setSelectedEmployee(null);
+            }
           }}>
-          <SheetTrigger asChild>
-            <Button>
-              <Plus />
-              Nov zaposleni
-            </Button>
-          </SheetTrigger>
           <SheetContent className='overflow-y-auto sm:max-w-md'>
             <SheetHeader>
-              <SheetTitle>Nov zaposleni</SheetTitle>
+              <SheetTitle>
+                {selectedEmployee ? "Uredi zaposlenega" : "Nov zaposleni"}
+              </SheetTitle>
               <SheetDescription>
-                Ustvarite račun in določite dostop zaposlenega.
+                {selectedEmployee
+                  ? "Spremenite podatke, vlogo ali stanje računa."
+                  : "Ustvarite račun in določite dostop zaposlenega."}
               </SheetDescription>
             </SheetHeader>
 
@@ -332,7 +376,11 @@ export default function Accounts() {
 
               <SheetFooter className='mt-6 p-0 pb-4'>
                 <Button type='submit' disabled={isSubmitting}>
-                  {isSubmitting ? "Ustvarjanje ..." : "Ustvari zaposlenega"}
+                  {isSubmitting
+                    ? "Shranjevanje ..."
+                    : selectedEmployee
+                      ? "Shrani spremembe"
+                      : "Ustvari zaposlenega"}
                 </Button>
               </SheetFooter>
             </form>
@@ -365,17 +413,27 @@ export default function Accounts() {
             </TableHeader>
             <TableBody>
               {employees.map((employee) => (
-                <TableRow key={employee.id_Zaposleni}>
+                <TableRow
+                  key={employee.id_Zaposleni}
+                  className='cursor-pointer focus-visible:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'
+                  role='button'
+                  tabIndex={0}
+                  onClick={() => openEditSheet(employee)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      openEditSheet(employee);
+                    }
+                  }}>
                   <TableCell className='font-medium'>
                     {employee.ime} {employee.priimek}
                   </TableCell>
                   <TableCell>{employee.email}</TableCell>
                   <TableCell>{roleLabels[employee.vloga]}</TableCell>
+                  <TableCell>{employee.urnaPostavka.toFixed(2)} €/h</TableCell>
                   <TableCell>
-                    {employee.urnaPostavka.toFixed(2)} €/h
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={employee.aktiven ? "secondary" : "destructive"}>
+                    <Badge
+                      variant={employee.aktiven ? "secondary" : "destructive"}>
                       {employee.aktiven ? "Aktiven" : "Neaktiven"}
                     </Badge>
                   </TableCell>
@@ -402,7 +460,9 @@ export default function Accounts() {
             </DialogDescription>
           </DialogHeader>
           <div className='space-y-3'>
-            <p className='text-sm text-muted-foreground'>{credentials?.email}</p>
+            <p className='text-sm text-muted-foreground'>
+              {credentials?.email}
+            </p>
             <div className='flex items-center gap-2 rounded-lg border bg-muted p-3'>
               <code className='min-w-0 flex-1 break-all font-mono text-sm'>
                 {credentials?.password}
@@ -416,7 +476,9 @@ export default function Accounts() {
                 {copied ? <Check /> : <Copy />}
               </Button>
             </div>
-            {copied && <p className='text-sm text-green-700'>Geslo je kopirano.</p>}
+            {copied && (
+              <p className='text-sm text-green-700'>Geslo je kopirano.</p>
+            )}
           </div>
           <DialogFooter>
             <DialogClose asChild>
