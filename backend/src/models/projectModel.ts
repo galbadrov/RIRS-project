@@ -33,8 +33,20 @@ export type ProjectErrorCode =
   | "NOT_MANAGER"
   | "NOT_FOUND";
 
+export type AssignmentErrorCode =
+  | "DUPLICATE_ASSIGNMENT"
+  | "EMPLOYEE_NOT_AVAILABLE"
+  | "NOT_MANAGER"
+  | "PROJECT_NOT_FOUND";
+
 export class ProjectError extends Error {
   constructor(public readonly code: ProjectErrorCode) {
+    super(code);
+  }
+}
+
+export class AssignmentError extends Error {
+  constructor(public readonly code: AssignmentErrorCode) {
     super(code);
   }
 }
@@ -170,7 +182,7 @@ export async function createProject(input: NewProject) {
 
 export async function updateProject(
   id: number,
-  managerId: number,
+  managerId: number | undefined,
   input: ProjectUpdate,
 ) {
   const existingProject = await prisma.projekt.findUnique({
@@ -179,7 +191,10 @@ export async function updateProject(
   });
 
   if (!existingProject) throw new ProjectError("NOT_FOUND");
-  if (existingProject.idVodjaProjekta !== managerId) {
+  if (
+    managerId !== undefined &&
+    existingProject.idVodjaProjekta !== managerId
+  ) {
     throw new ProjectError("NOT_MANAGER");
   }
 
@@ -195,4 +210,58 @@ export async function updateProject(
   });
 
   return serializeProject(project);
+}
+
+export async function createProjectAssignment(
+  projectId: number,
+  managerId: number,
+  employeeId: number,
+) {
+  const [project, employee] = await Promise.all([
+    prisma.projekt.findUnique({
+      where: { id: projectId },
+      select: { idVodjaProjekta: true },
+    }),
+    prisma.zaposleni.findFirst({
+      where: { id: employeeId, aktiven: true },
+      select: { id: true },
+    }),
+  ]);
+
+  if (!project) throw new AssignmentError("PROJECT_NOT_FOUND");
+  if (project.idVodjaProjekta !== managerId) {
+    throw new AssignmentError("NOT_MANAGER");
+  }
+  if (!employee) throw new AssignmentError("EMPLOYEE_NOT_AVAILABLE");
+
+  try {
+    const assignment = await prisma.dodelitev.create({
+      data: {
+        idProjekt: projectId,
+        idZaposleni: employeeId,
+      },
+      select: {
+        id: true,
+        idProjekt: true,
+        idZaposleni: true,
+      },
+    });
+
+    return {
+      id_Dodelitve: assignment.id,
+      id_Projekt: assignment.idProjekt,
+      id_Zaposleni: assignment.idZaposleni,
+    };
+  } catch (error) {
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      error.code === "P2002"
+    ) {
+      throw new AssignmentError("DUPLICATE_ASSIGNMENT");
+    }
+
+    throw error;
+  }
 }

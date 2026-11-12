@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { ArrowLeft, Pencil, Save, X } from "lucide-react";
+import { ArrowLeft, Pencil, Save, Users, X } from "lucide-react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
 import { Badge } from "@/components/ui/badge";
@@ -14,6 +14,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 type Project = {
   id_Projekt: number;
@@ -33,11 +41,28 @@ type ProjectForm = Pick<
   "opis" | "datumZacetka" | "datumZakljucka" | "status"
 >;
 
+type EmployeeRole = "ADMIN" | "PROJECT_MANAGER" | "WORKER";
+
+type ActiveEmployee = {
+  id_Zaposleni: number;
+  ime: string;
+  priimek: string;
+  email: string;
+  vloga: EmployeeRole;
+  dodeljen: boolean;
+};
+
 const statusLabels: Record<string, string> = {
   NACRTOVAN: "Načrtovan",
   V_TEKU: "V teku",
   ZAKLJUCEN: "Zaključen",
   PREKLICAN: "Preklican",
+};
+
+const roleLabels: Record<EmployeeRole, string> = {
+  ADMIN: "Administrator",
+  PROJECT_MANAGER: "Projektni vodja",
+  WORKER: "Delavec",
 };
 
 function getStoredUser() {
@@ -61,6 +86,13 @@ export default function ProjectDetails() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [activeEmployees, setActiveEmployees] = useState<ActiveEmployee[]>([]);
+  const [areEmployeesLoading, setAreEmployeesLoading] = useState(false);
+  const [employeesError, setEmployeesError] = useState("");
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState("");
+  const [isAssigning, setIsAssigning] = useState(false);
+  const [assignmentError, setAssignmentError] = useState("");
+  const [assignmentSuccess, setAssignmentSuccess] = useState("");
 
   useEffect(() => {
     const controller = new AbortController();
@@ -109,9 +141,143 @@ export default function ProjectDetails() {
   }, [id, navigate]);
 
   const user = getStoredUser();
-  const canEdit =
+  const canManageAssignments =
     user?.vloga === "PROJECT_MANAGER" &&
     user.id_Zaposleni === project?.vodjaProjekta.id_Zaposleni;
+  const canEditProject = user?.vloga === "ADMIN" || canManageAssignments;
+
+  useEffect(() => {
+    if (!canManageAssignments) return;
+
+    const controller = new AbortController();
+
+    async function loadActiveEmployees() {
+      setAreEmployeesLoading(true);
+      setEmployeesError("");
+
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL ?? "http://localhost:3000"}/api/projects/${id}/active-employees`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken") ?? ""}`,
+            },
+            signal: controller.signal,
+          },
+        );
+
+        if (response.status === 401) {
+          localStorage.removeItem("accessToken");
+          localStorage.removeItem("refreshToken");
+          localStorage.removeItem("expiresAt");
+          localStorage.removeItem("user");
+          navigate("/login", { replace: true });
+          return;
+        }
+
+        const result = (await response.json()) as {
+          employees?: ActiveEmployee[];
+          message?: string;
+        };
+
+        if (!response.ok || !result.employees) {
+          setEmployeesError(
+            result.message ?? "Aktivnih zaposlenih ni mogoče pridobiti.",
+          );
+          return;
+        }
+
+        setActiveEmployees(result.employees);
+      } catch (requestError) {
+        if (requestError instanceof Error && requestError.name !== "AbortError") {
+          setEmployeesError("Povezava s strežnikom ni uspela.");
+        }
+      } finally {
+        if (!controller.signal.aborted) {
+          setAreEmployeesLoading(false);
+        }
+      }
+    }
+
+    void loadActiveEmployees();
+    return () => controller.abort();
+  }, [canManageAssignments, id, navigate]);
+
+  const unassignedEmployees = activeEmployees.filter(
+    (employee) => !employee.dodeljen,
+  );
+  const assignedEmployees = activeEmployees.filter(
+    (employee) => employee.dodeljen,
+  );
+
+  async function handleAssignmentSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setAssignmentError("");
+    setAssignmentSuccess("");
+
+    const employeeId = Number(selectedEmployeeId);
+    if (!Number.isInteger(employeeId) || employeeId <= 0) {
+      setAssignmentError("Izberite zaposlenega.");
+      return;
+    }
+
+    setIsAssigning(true);
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL ?? "http://localhost:3000"}/api/projects/${id}/assignments`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken") ?? ""}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            idZaposleni: employeeId,
+          }),
+        },
+      );
+
+      if (response.status === 401) {
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+        localStorage.removeItem("expiresAt");
+        localStorage.removeItem("user");
+        navigate("/login", { replace: true });
+        return;
+      }
+
+      const result = (await response.json()) as {
+        assignment?: {
+          id_Zaposleni: number;
+        };
+        message?: string;
+      };
+
+      if (!response.ok || !result.assignment) {
+        setAssignmentError(
+          result.message ?? "Zaposlenega trenutno ni mogoče dodeliti.",
+        );
+        return;
+      }
+
+      setActiveEmployees((employees) =>
+        employees.map((employee) =>
+          employee.id_Zaposleni === result.assignment!.id_Zaposleni
+            ? {
+                ...employee,
+                dodeljen: true,
+              }
+            : employee,
+        ),
+      );
+      setSelectedEmployeeId("");
+      setAssignmentSuccess("Zaposleni je bil uspešno dodeljen projektu.");
+    } catch {
+      setAssignmentError("Povezava s strežnikom ni uspela.");
+    } finally {
+      setIsAssigning(false);
+    }
+  }
 
   function startEditing() {
     if (!project) return;
@@ -228,7 +394,7 @@ export default function ProjectDetails() {
             <Badge variant='secondary'>
               {statusLabels[project.status] ?? project.status}
             </Badge>
-            {canEdit && !isEditing && (
+            {canEditProject && !isEditing && (
               <Button type='button' size='sm' onClick={startEditing}>
                 <Pencil /> Uredi projekt
               </Button>
@@ -374,6 +540,121 @@ export default function ProjectDetails() {
         </dl>
         )}
       </div>
+
+      {canManageAssignments && (
+        <section className='rounded-xl border bg-white shadow-sm'>
+          <div className='border-b p-6'>
+            <div className='flex items-center gap-2'>
+              <Users className='size-5 text-slate-600' aria-hidden='true' />
+              <h2 className='text-lg font-semibold text-slate-900'>
+                Zaposleni na projektu
+              </h2>
+            </div>
+            <p className='mt-1 text-sm text-slate-600'>
+              Dodelite aktivnega zaposlenega in preglejte trenutne člane projekta.
+            </p>
+          </div>
+
+          {areEmployeesLoading ? (
+            <p className='p-6 text-sm text-slate-600'>
+              Nalaganje aktivnih zaposlenih ...
+            </p>
+          ) : employeesError ? (
+            <p className='m-6 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700' role='alert'>
+              {employeesError}
+            </p>
+          ) : activeEmployees.length === 0 ? (
+            <p className='p-6 text-sm text-slate-600'>
+              Trenutno ni aktivnih zaposlenih.
+            </p>
+          ) : (
+            <>
+              <form className='space-y-4 border-b p-6' onSubmit={handleAssignmentSubmit}>
+                <div className='grid gap-4 md:grid-cols-[minmax(0,1fr)_auto] md:items-end'>
+                  <div className='space-y-2'>
+                    <Label htmlFor='assignmentEmployee'>Zaposleni</Label>
+                    <Select
+                      value={selectedEmployeeId}
+                      onValueChange={setSelectedEmployeeId}
+                      disabled={isAssigning || unassignedEmployees.length === 0}>
+                      <SelectTrigger id='assignmentEmployee' className='w-full'>
+                        <SelectValue placeholder='Izberite zaposlenega' />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {unassignedEmployees.map((employee) => (
+                          <SelectItem
+                            key={employee.id_Zaposleni}
+                            value={String(employee.id_Zaposleni)}>
+                            {employee.ime} {employee.priimek}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <Button
+                    type='submit'
+                    disabled={
+                      isAssigning ||
+                      unassignedEmployees.length === 0 ||
+                      !selectedEmployeeId
+                    }>
+                    <Users />
+                    {isAssigning ? "Dodeljevanje ..." : "Dodeli zaposlenega"}
+                  </Button>
+                </div>
+
+                {unassignedEmployees.length === 0 && (
+                  <p className='text-sm text-slate-600'>
+                    Vsi aktivni zaposleni so že dodeljeni projektu.
+                  </p>
+                )}
+                {assignmentError && (
+                  <p className='rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700' role='alert'>
+                    {assignmentError}
+                  </p>
+                )}
+                {assignmentSuccess && (
+                  <p className='rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-700' role='status'>
+                    {assignmentSuccess}
+                  </p>
+                )}
+              </form>
+
+              {assignedEmployees.length > 0 ? (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Zaposleni</TableHead>
+                      <TableHead>E-pošta</TableHead>
+                      <TableHead>Vloga</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {assignedEmployees.map((employee) => (
+                      <TableRow key={employee.id_Zaposleni}>
+                        <TableCell className='font-medium'>
+                          {employee.ime} {employee.priimek}
+                        </TableCell>
+                        <TableCell>{employee.email}</TableCell>
+                        <TableCell>
+                          <Badge variant='secondary'>
+                            {roleLabels[employee.vloga] ?? employee.vloga}
+                          </Badge>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              ) : (
+                <p className='p-6 text-sm text-slate-600'>
+                  Projektu trenutno ni dodeljen noben zaposleni.
+                </p>
+              )}
+            </>
+          )}
+        </section>
+      )}
     </div>
   );
 }
