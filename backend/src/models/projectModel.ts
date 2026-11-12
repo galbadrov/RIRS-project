@@ -11,9 +11,26 @@ type NewProject = {
   dogovorjenaCena: number;
 };
 
+type ProjectUpdate = {
+  opis: string;
+  datumZacetka: Date;
+  datumZakljucka: Date;
+  status: ProjectStatus;
+};
+
+export const projectStatuses = [
+  "NACRTOVAN",
+  "V_TEKU",
+  "ZAKLJUCEN",
+  "PREKLICAN",
+] as const;
+
+export type ProjectStatus = (typeof projectStatuses)[number];
+
 export type ProjectErrorCode =
   | "CLIENT_NOT_FOUND"
   | "MANAGER_NOT_AVAILABLE"
+  | "NOT_MANAGER"
   | "NOT_FOUND";
 
 export class ProjectError extends Error {
@@ -68,21 +85,26 @@ function serializeProject(project: {
   };
 }
 
-export async function getProjectPageData() {
+export async function getProjectPageData(managerId?: number) {
   const [projects, clients, projectManagers] = await Promise.all([
     prisma.projekt.findMany({
+      where: managerId === undefined ? undefined : { idVodjaProjekta: managerId },
       select: projectSelection,
       orderBy: { datumZacetka: "desc" },
     }),
-    prisma.stranka.findMany({
-      select: { id: true, naziv: true },
-      orderBy: { naziv: "asc" },
-    }),
-    prisma.zaposleni.findMany({
-      where: { aktiven: true, vloga: "PROJECT_MANAGER" },
-      select: { id: true, ime: true, priimek: true },
-      orderBy: [{ priimek: "asc" }, { ime: "asc" }],
-    }),
+    managerId === undefined
+      ? prisma.stranka.findMany({
+          select: { id: true, naziv: true },
+          orderBy: { naziv: "asc" },
+        })
+      : [],
+    managerId === undefined
+      ? prisma.zaposleni.findMany({
+          where: { aktiven: true, vloga: "PROJECT_MANAGER" },
+          select: { id: true, ime: true, priimek: true },
+          orderBy: [{ priimek: "asc" }, { ime: "asc" }],
+        })
+      : [],
   ]);
 
   return {
@@ -139,6 +161,35 @@ export async function createProject(input: NewProject) {
       datumZakljucka: input.datumZakljucka,
       dogovorjenaCena: input.dogovorjenaCena,
       status: "NACRTOVAN",
+    },
+    select: projectSelection,
+  });
+
+  return serializeProject(project);
+}
+
+export async function updateProject(
+  id: number,
+  managerId: number,
+  input: ProjectUpdate,
+) {
+  const existingProject = await prisma.projekt.findUnique({
+    where: { id },
+    select: { idVodjaProjekta: true },
+  });
+
+  if (!existingProject) throw new ProjectError("NOT_FOUND");
+  if (existingProject.idVodjaProjekta !== managerId) {
+    throw new ProjectError("NOT_MANAGER");
+  }
+
+  const project = await prisma.projekt.update({
+    where: { id },
+    data: {
+      opis: input.opis.trim(),
+      datumZacetka: input.datumZacetka,
+      datumZakljucka: input.datumZakljucka,
+      status: input.status,
     },
     select: projectSelection,
   });
