@@ -4,6 +4,7 @@ import {
   createProjectAssignment,
   createProject,
   deleteProjectAssignment,
+  getAssignedProjects,
   getProject,
   getProjectPageData,
   ProjectError,
@@ -23,6 +24,22 @@ function parseDate(value: unknown) {
     date.toISOString().slice(0, 10) === value
     ? date
     : null;
+}
+
+export async function listAssignedProjects(
+  _req: Request,
+  res: Response,
+): Promise<void> {
+  try {
+    const employee = res.locals.employee as AuthenticatedEmployee;
+    res.json({ projects: await getAssignedProjects(employee.id) });
+  } catch (error) {
+    console.error("Napaka pri pridobivanju dodeljenih projektov:", error);
+    res.status(500).json({
+      code: "SERVICE_ERROR",
+      message: "Dodeljenih projektov trenutno ni mogoče pridobiti.",
+    });
+  }
 }
 
 export async function listProjects(_req: Request, res: Response): Promise<void> {

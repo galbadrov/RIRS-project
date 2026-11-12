@@ -1,5 +1,6 @@
 import {
   Building2,
+  Clock3,
   FolderKanban,
   LayoutDashboard,
   LogOut,
@@ -124,6 +125,17 @@ export default function AppSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               )}
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  isActive={pathname === "/ure"}
+                  tooltip='Ure'>
+                  <Link to='/ure'>
+                    <Clock3 />
+                    <span>Ure</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

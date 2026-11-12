@@ -3,6 +3,7 @@ import {
   addEmployeeToProject,
   addProject,
   editProject,
+  listAssignedProjects,
   listActiveEmployeesForProject,
   listProjects,
   removeEmployeeFromProject,
@@ -15,6 +16,7 @@ const projectRouter = express.Router();
 
 projectRouter.get("/", requireEmployee, listProjects);
 projectRouter.post("/", requireAdmin, addProject);
+projectRouter.get("/assigned", requireEmployee, listAssignedProjects);
 projectRouter.get(
   "/:id/active-employees",
   requireEmployee,
