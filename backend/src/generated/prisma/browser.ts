@@ -37,3 +37,8 @@ export type Projekt = Prisma.ProjektModel
  * 
  */
 export type Dodelitev = Prisma.DodelitevModel
+/**
+ * Model Ure
+ * 
+ */
+export type Ure = Prisma.UreModel

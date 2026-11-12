@@ -400,7 +400,8 @@ export const ModelName = {
   Zaposleni: 'Zaposleni',
   Stranka: 'Stranka',
   Projekt: 'Projekt',
-  Dodelitev: 'Dodelitev'
+  Dodelitev: 'Dodelitev',
+  Ure: 'Ure'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -416,7 +417,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "zaposleni" | "stranka" | "projekt" | "dodelitev"
+    modelProps: "zaposleni" | "stranka" | "projekt" | "dodelitev" | "ure"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -716,6 +717,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Ure: {
+      payload: Prisma.$UrePayload<ExtArgs>
+      fields: Prisma.UreFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.UreFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UrePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.UreFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UrePayload>
+        }
+        findFirst: {
+          args: Prisma.UreFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UrePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.UreFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UrePayload>
+        }
+        findMany: {
+          args: Prisma.UreFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UrePayload>[]
+        }
+        create: {
+          args: Prisma.UreCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UrePayload>
+        }
+        createMany: {
+          args: Prisma.UreCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.UreCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UrePayload>[]
+        }
+        delete: {
+          args: Prisma.UreDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UrePayload>
+        }
+        update: {
+          args: Prisma.UreUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UrePayload>
+        }
+        deleteMany: {
+          args: Prisma.UreDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.UreUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.UreUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UrePayload>[]
+        }
+        upsert: {
+          args: Prisma.UreUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UrePayload>
+        }
+        aggregate: {
+          args: Prisma.UreAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateUre>
+        }
+        groupBy: {
+          args: Prisma.UreGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.UreGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.UreCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.UreCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -807,6 +882,18 @@ export const DodelitevScalarFieldEnum = {
 } as const
 
 export type DodelitevScalarFieldEnum = (typeof DodelitevScalarFieldEnum)[keyof typeof DodelitevScalarFieldEnum]
+
+
+export const UreScalarFieldEnum = {
+  id: 'id',
+  idProjekt: 'idProjekt',
+  idZaposleni: 'idZaposleni',
+  datum: 'datum',
+  steviloUr: 'steviloUr',
+  urnaPostavka: 'urnaPostavka'
+} as const
+
+export type UreScalarFieldEnum = (typeof UreScalarFieldEnum)[keyof typeof UreScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1070,6 +1157,7 @@ export type GlobalOmitConfig = {
   stranka?: Prisma.StrankaOmit
   projekt?: Prisma.ProjektOmit
   dodelitev?: Prisma.DodelitevOmit
+  ure?: Prisma.UreOmit
 }
 
 /* Types for Logging */
