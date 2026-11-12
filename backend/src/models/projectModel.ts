@@ -144,6 +144,28 @@ export async function getProject(id: number) {
   return serializeProject(project);
 }
 
+export async function getAssignedProjects(employeeId: number) {
+  const assignments = await prisma.dodelitev.findMany({
+    where: { idZaposleni: employeeId },
+    select: {
+      projekt: {
+        select: {
+          id: true,
+          naziv: true,
+          status: true,
+        },
+      },
+    },
+    orderBy: { projekt: { naziv: "asc" } },
+  });
+
+  return assignments.map(({ projekt }) => ({
+    id_Projekt: projekt.id,
+    naziv: projekt.naziv,
+    status: projekt.status,
+  }));
+}
+
 export async function createProject(input: NewProject) {
   const [client, manager] = await Promise.all([
     prisma.stranka.findUnique({

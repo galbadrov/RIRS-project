@@ -20,6 +20,7 @@ model Zaposleni {
   aktiven        Boolean     @default(true)
   vodeniProjekti Projekt[]   @relation("VodjaProjekta")
   dodelitve      Dodelitev[]
+  ure            Ure[]
 
   @@map("Zaposleni")
 }
@@ -52,6 +53,7 @@ model Projekt {
   stranka         Stranka     @relation(fields: [idStranka], references: [id], onDelete: Restrict)
   vodjaProjekta   Zaposleni   @relation("VodjaProjekta", fields: [idVodjaProjekta], references: [id], onDelete: Restrict)
   dodelitve       Dodelitev[]
+  ure             Ure[]
 
   @@index([idStranka])
   @@index([idVodjaProjekta])
@@ -69,4 +71,19 @@ model Dodelitev {
   @@unique([idProjekt, idZaposleni])
   @@index([idZaposleni])
   @@map("Dodelitev")
+}
+
+model Ure {
+  id            Int       @id @default(autoincrement()) @map("id_Ure")
+  idProjekt     Int       @map("id_Projekt")
+  idZaposleni   Int       @map("id_Zaposleni")
+  datum         DateTime  @db.Date
+  steviloUr     Decimal   @map("steviloUr") @db.Decimal(5, 2)
+  urnaPostavka  Decimal   @map("urnaPostavka") @db.Decimal(10, 2)
+  projekt       Projekt   @relation(fields: [idProjekt], references: [id], onDelete: Cascade)
+  zaposleni     Zaposleni @relation(fields: [idZaposleni], references: [id], onDelete: Restrict)
+
+  @@index([idZaposleni, datum])
+  @@index([idProjekt])
+  @@map("Ure")
 }

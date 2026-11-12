@@ -54,7 +54,8 @@ export const ModelName = {
   Zaposleni: 'Zaposleni',
   Stranka: 'Stranka',
   Projekt: 'Projekt',
-  Dodelitev: 'Dodelitev'
+  Dodelitev: 'Dodelitev',
+  Ure: 'Ure'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -125,6 +126,18 @@ export const DodelitevScalarFieldEnum = {
 } as const
 
 export type DodelitevScalarFieldEnum = (typeof DodelitevScalarFieldEnum)[keyof typeof DodelitevScalarFieldEnum]
+
+
+export const UreScalarFieldEnum = {
+  id: 'id',
+  idProjekt: 'idProjekt',
+  idZaposleni: 'idZaposleni',
+  datum: 'datum',
+  steviloUr: 'steviloUr',
+  urnaPostavka: 'urnaPostavka'
+} as const
+
+export type UreScalarFieldEnum = (typeof UreScalarFieldEnum)[keyof typeof UreScalarFieldEnum]
 
 
 export const SortOrder = {

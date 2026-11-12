@@ -4,6 +4,7 @@ import cors from "cors";
 import authRouter from "./routes/authRoute";
 import clientRouter from "./routes/clientRoute";
 import employeeRouter from "./routes/employeeRoute";
+import hourRouter from "./routes/hourRoute";
 import projectRouter from "./routes/projectRoute";
 
 const app = express();
@@ -16,6 +17,7 @@ app.use(cors());
 app.use("/api/auth", authRouter);
 app.use("/api/clients", clientRouter);
 app.use("/api/employees", employeeRouter);
+app.use("/api/hours", hourRouter);
 app.use("/api/projects", projectRouter);
 
 app.get("/api/health", (_req, res) => {

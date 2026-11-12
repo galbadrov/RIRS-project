@@ -295,6 +295,7 @@ export type ProjektWhereInput = {
   stranka?: Prisma.XOR<Prisma.StrankaScalarRelationFilter, Prisma.StrankaWhereInput>
   vodjaProjekta?: Prisma.XOR<Prisma.ZaposleniScalarRelationFilter, Prisma.ZaposleniWhereInput>
   dodelitve?: Prisma.DodelitevListRelationFilter
+  ure?: Prisma.UreListRelationFilter
 }
 
 export type ProjektOrderByWithRelationInput = {
@@ -313,6 +314,7 @@ export type ProjektOrderByWithRelationInput = {
   stranka?: Prisma.StrankaOrderByWithRelationInput
   vodjaProjekta?: Prisma.ZaposleniOrderByWithRelationInput
   dodelitve?: Prisma.DodelitevOrderByRelationAggregateInput
+  ure?: Prisma.UreOrderByRelationAggregateInput
 }
 
 export type ProjektWhereUniqueInput = Prisma.AtLeast<{
@@ -334,6 +336,7 @@ export type ProjektWhereUniqueInput = Prisma.AtLeast<{
   stranka?: Prisma.XOR<Prisma.StrankaScalarRelationFilter, Prisma.StrankaWhereInput>
   vodjaProjekta?: Prisma.XOR<Prisma.ZaposleniScalarRelationFilter, Prisma.ZaposleniWhereInput>
   dodelitve?: Prisma.DodelitevListRelationFilter
+  ure?: Prisma.UreListRelationFilter
 }, "id">
 
 export type ProjektOrderByWithAggregationInput = {
@@ -387,6 +390,7 @@ export type ProjektCreateInput = {
   stranka: Prisma.StrankaCreateNestedOneWithoutProjektiInput
   vodjaProjekta: Prisma.ZaposleniCreateNestedOneWithoutVodeniProjektiInput
   dodelitve?: Prisma.DodelitevCreateNestedManyWithoutProjektInput
+  ure?: Prisma.UreCreateNestedManyWithoutProjektInput
 }
 
 export type ProjektUncheckedCreateInput = {
@@ -403,6 +407,7 @@ export type ProjektUncheckedCreateInput = {
   dogovorjenaCena: runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: string
   dodelitve?: Prisma.DodelitevUncheckedCreateNestedManyWithoutProjektInput
+  ure?: Prisma.UreUncheckedCreateNestedManyWithoutProjektInput
 }
 
 export type ProjektUpdateInput = {
@@ -418,6 +423,7 @@ export type ProjektUpdateInput = {
   stranka?: Prisma.StrankaUpdateOneRequiredWithoutProjektiNestedInput
   vodjaProjekta?: Prisma.ZaposleniUpdateOneRequiredWithoutVodeniProjektiNestedInput
   dodelitve?: Prisma.DodelitevUpdateManyWithoutProjektNestedInput
+  ure?: Prisma.UreUpdateManyWithoutProjektNestedInput
 }
 
 export type ProjektUncheckedUpdateInput = {
@@ -434,6 +440,7 @@ export type ProjektUncheckedUpdateInput = {
   dogovorjenaCena?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   dodelitve?: Prisma.DodelitevUncheckedUpdateManyWithoutProjektNestedInput
+  ure?: Prisma.UreUncheckedUpdateManyWithoutProjektNestedInput
 }
 
 export type ProjektCreateManyInput = {
@@ -666,6 +673,20 @@ export type ProjektUpdateOneRequiredWithoutDodelitveNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ProjektUpdateToOneWithWhereWithoutDodelitveInput, Prisma.ProjektUpdateWithoutDodelitveInput>, Prisma.ProjektUncheckedUpdateWithoutDodelitveInput>
 }
 
+export type ProjektCreateNestedOneWithoutUreInput = {
+  create?: Prisma.XOR<Prisma.ProjektCreateWithoutUreInput, Prisma.ProjektUncheckedCreateWithoutUreInput>
+  connectOrCreate?: Prisma.ProjektCreateOrConnectWithoutUreInput
+  connect?: Prisma.ProjektWhereUniqueInput
+}
+
+export type ProjektUpdateOneRequiredWithoutUreNestedInput = {
+  create?: Prisma.XOR<Prisma.ProjektCreateWithoutUreInput, Prisma.ProjektUncheckedCreateWithoutUreInput>
+  connectOrCreate?: Prisma.ProjektCreateOrConnectWithoutUreInput
+  upsert?: Prisma.ProjektUpsertWithoutUreInput
+  connect?: Prisma.ProjektWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProjektUpdateToOneWithWhereWithoutUreInput, Prisma.ProjektUpdateWithoutUreInput>, Prisma.ProjektUncheckedUpdateWithoutUreInput>
+}
+
 export type ProjektCreateWithoutVodjaProjektaInput = {
   naziv: string
   opis: string
@@ -678,6 +699,7 @@ export type ProjektCreateWithoutVodjaProjektaInput = {
   status?: string
   stranka: Prisma.StrankaCreateNestedOneWithoutProjektiInput
   dodelitve?: Prisma.DodelitevCreateNestedManyWithoutProjektInput
+  ure?: Prisma.UreCreateNestedManyWithoutProjektInput
 }
 
 export type ProjektUncheckedCreateWithoutVodjaProjektaInput = {
@@ -693,6 +715,7 @@ export type ProjektUncheckedCreateWithoutVodjaProjektaInput = {
   dogovorjenaCena: runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: string
   dodelitve?: Prisma.DodelitevUncheckedCreateNestedManyWithoutProjektInput
+  ure?: Prisma.UreUncheckedCreateNestedManyWithoutProjektInput
 }
 
 export type ProjektCreateOrConnectWithoutVodjaProjektaInput = {
@@ -751,6 +774,7 @@ export type ProjektCreateWithoutStrankaInput = {
   status?: string
   vodjaProjekta: Prisma.ZaposleniCreateNestedOneWithoutVodeniProjektiInput
   dodelitve?: Prisma.DodelitevCreateNestedManyWithoutProjektInput
+  ure?: Prisma.UreCreateNestedManyWithoutProjektInput
 }
 
 export type ProjektUncheckedCreateWithoutStrankaInput = {
@@ -766,6 +790,7 @@ export type ProjektUncheckedCreateWithoutStrankaInput = {
   dogovorjenaCena: runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: string
   dodelitve?: Prisma.DodelitevUncheckedCreateNestedManyWithoutProjektInput
+  ure?: Prisma.UreUncheckedCreateNestedManyWithoutProjektInput
 }
 
 export type ProjektCreateOrConnectWithoutStrankaInput = {
@@ -806,6 +831,7 @@ export type ProjektCreateWithoutDodelitveInput = {
   status?: string
   stranka: Prisma.StrankaCreateNestedOneWithoutProjektiInput
   vodjaProjekta: Prisma.ZaposleniCreateNestedOneWithoutVodeniProjektiInput
+  ure?: Prisma.UreCreateNestedManyWithoutProjektInput
 }
 
 export type ProjektUncheckedCreateWithoutDodelitveInput = {
@@ -821,6 +847,7 @@ export type ProjektUncheckedCreateWithoutDodelitveInput = {
   datumZakljucka: Date | string
   dogovorjenaCena: runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: string
+  ure?: Prisma.UreUncheckedCreateNestedManyWithoutProjektInput
 }
 
 export type ProjektCreateOrConnectWithoutDodelitveInput = {
@@ -851,6 +878,7 @@ export type ProjektUpdateWithoutDodelitveInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   stranka?: Prisma.StrankaUpdateOneRequiredWithoutProjektiNestedInput
   vodjaProjekta?: Prisma.ZaposleniUpdateOneRequiredWithoutVodeniProjektiNestedInput
+  ure?: Prisma.UreUpdateManyWithoutProjektNestedInput
 }
 
 export type ProjektUncheckedUpdateWithoutDodelitveInput = {
@@ -866,6 +894,85 @@ export type ProjektUncheckedUpdateWithoutDodelitveInput = {
   datumZakljucka?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   dogovorjenaCena?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  ure?: Prisma.UreUncheckedUpdateManyWithoutProjektNestedInput
+}
+
+export type ProjektCreateWithoutUreInput = {
+  naziv: string
+  opis: string
+  lokacija: string
+  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  datumZacetka: Date | string
+  datumZakljucka: Date | string
+  dogovorjenaCena: runtime.Decimal | runtime.DecimalJsLike | number | string
+  status?: string
+  stranka: Prisma.StrankaCreateNestedOneWithoutProjektiInput
+  vodjaProjekta: Prisma.ZaposleniCreateNestedOneWithoutVodeniProjektiInput
+  dodelitve?: Prisma.DodelitevCreateNestedManyWithoutProjektInput
+}
+
+export type ProjektUncheckedCreateWithoutUreInput = {
+  id?: number
+  idStranka: number
+  idVodjaProjekta: number
+  naziv: string
+  opis: string
+  lokacija: string
+  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  datumZacetka: Date | string
+  datumZakljucka: Date | string
+  dogovorjenaCena: runtime.Decimal | runtime.DecimalJsLike | number | string
+  status?: string
+  dodelitve?: Prisma.DodelitevUncheckedCreateNestedManyWithoutProjektInput
+}
+
+export type ProjektCreateOrConnectWithoutUreInput = {
+  where: Prisma.ProjektWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProjektCreateWithoutUreInput, Prisma.ProjektUncheckedCreateWithoutUreInput>
+}
+
+export type ProjektUpsertWithoutUreInput = {
+  update: Prisma.XOR<Prisma.ProjektUpdateWithoutUreInput, Prisma.ProjektUncheckedUpdateWithoutUreInput>
+  create: Prisma.XOR<Prisma.ProjektCreateWithoutUreInput, Prisma.ProjektUncheckedCreateWithoutUreInput>
+  where?: Prisma.ProjektWhereInput
+}
+
+export type ProjektUpdateToOneWithWhereWithoutUreInput = {
+  where?: Prisma.ProjektWhereInput
+  data: Prisma.XOR<Prisma.ProjektUpdateWithoutUreInput, Prisma.ProjektUncheckedUpdateWithoutUreInput>
+}
+
+export type ProjektUpdateWithoutUreInput = {
+  naziv?: Prisma.StringFieldUpdateOperationsInput | string
+  opis?: Prisma.StringFieldUpdateOperationsInput | string
+  lokacija?: Prisma.StringFieldUpdateOperationsInput | string
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  datumZacetka?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  datumZakljucka?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  dogovorjenaCena?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  stranka?: Prisma.StrankaUpdateOneRequiredWithoutProjektiNestedInput
+  vodjaProjekta?: Prisma.ZaposleniUpdateOneRequiredWithoutVodeniProjektiNestedInput
+  dodelitve?: Prisma.DodelitevUpdateManyWithoutProjektNestedInput
+}
+
+export type ProjektUncheckedUpdateWithoutUreInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  idStranka?: Prisma.IntFieldUpdateOperationsInput | number
+  idVodjaProjekta?: Prisma.IntFieldUpdateOperationsInput | number
+  naziv?: Prisma.StringFieldUpdateOperationsInput | string
+  opis?: Prisma.StringFieldUpdateOperationsInput | string
+  lokacija?: Prisma.StringFieldUpdateOperationsInput | string
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  datumZacetka?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  datumZakljucka?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  dogovorjenaCena?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  dodelitve?: Prisma.DodelitevUncheckedUpdateManyWithoutProjektNestedInput
 }
 
 export type ProjektCreateManyVodjaProjektaInput = {
@@ -894,6 +1001,7 @@ export type ProjektUpdateWithoutVodjaProjektaInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   stranka?: Prisma.StrankaUpdateOneRequiredWithoutProjektiNestedInput
   dodelitve?: Prisma.DodelitevUpdateManyWithoutProjektNestedInput
+  ure?: Prisma.UreUpdateManyWithoutProjektNestedInput
 }
 
 export type ProjektUncheckedUpdateWithoutVodjaProjektaInput = {
@@ -909,6 +1017,7 @@ export type ProjektUncheckedUpdateWithoutVodjaProjektaInput = {
   dogovorjenaCena?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   dodelitve?: Prisma.DodelitevUncheckedUpdateManyWithoutProjektNestedInput
+  ure?: Prisma.UreUncheckedUpdateManyWithoutProjektNestedInput
 }
 
 export type ProjektUncheckedUpdateManyWithoutVodjaProjektaInput = {
@@ -951,6 +1060,7 @@ export type ProjektUpdateWithoutStrankaInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   vodjaProjekta?: Prisma.ZaposleniUpdateOneRequiredWithoutVodeniProjektiNestedInput
   dodelitve?: Prisma.DodelitevUpdateManyWithoutProjektNestedInput
+  ure?: Prisma.UreUpdateManyWithoutProjektNestedInput
 }
 
 export type ProjektUncheckedUpdateWithoutStrankaInput = {
@@ -966,6 +1076,7 @@ export type ProjektUncheckedUpdateWithoutStrankaInput = {
   dogovorjenaCena?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   dodelitve?: Prisma.DodelitevUncheckedUpdateManyWithoutProjektNestedInput
+  ure?: Prisma.UreUncheckedUpdateManyWithoutProjektNestedInput
 }
 
 export type ProjektUncheckedUpdateManyWithoutStrankaInput = {
@@ -989,10 +1100,12 @@ export type ProjektUncheckedUpdateManyWithoutStrankaInput = {
 
 export type ProjektCountOutputType = {
   dodelitve: number
+  ure: number
 }
 
 export type ProjektCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   dodelitve?: boolean | ProjektCountOutputTypeCountDodelitveArgs
+  ure?: boolean | ProjektCountOutputTypeCountUreArgs
 }
 
 /**
@@ -1012,6 +1125,13 @@ export type ProjektCountOutputTypeCountDodelitveArgs<ExtArgs extends runtime.Typ
   where?: Prisma.DodelitevWhereInput
 }
 
+/**
+ * ProjektCountOutputType without action
+ */
+export type ProjektCountOutputTypeCountUreArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.UreWhereInput
+}
+
 
 export type ProjektSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1029,6 +1149,7 @@ export type ProjektSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   stranka?: boolean | Prisma.StrankaDefaultArgs<ExtArgs>
   vodjaProjekta?: boolean | Prisma.ZaposleniDefaultArgs<ExtArgs>
   dodelitve?: boolean | Prisma.Projekt$dodelitveArgs<ExtArgs>
+  ure?: boolean | Prisma.Projekt$ureArgs<ExtArgs>
   _count?: boolean | Prisma.ProjektCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["projekt"]>
 
@@ -1086,6 +1207,7 @@ export type ProjektInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs
   stranka?: boolean | Prisma.StrankaDefaultArgs<ExtArgs>
   vodjaProjekta?: boolean | Prisma.ZaposleniDefaultArgs<ExtArgs>
   dodelitve?: boolean | Prisma.Projekt$dodelitveArgs<ExtArgs>
+  ure?: boolean | Prisma.Projekt$ureArgs<ExtArgs>
   _count?: boolean | Prisma.ProjektCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ProjektIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1103,6 +1225,7 @@ export type $ProjektPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     stranka: Prisma.$StrankaPayload<ExtArgs>
     vodjaProjekta: Prisma.$ZaposleniPayload<ExtArgs>
     dodelitve: Prisma.$DodelitevPayload<ExtArgs>[]
+    ure: Prisma.$UrePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1514,6 +1637,7 @@ export interface Prisma__ProjektClient<T, Null = never, ExtArgs extends runtime.
   stranka<T extends Prisma.StrankaDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.StrankaDefaultArgs<ExtArgs>>): Prisma.Prisma__StrankaClient<runtime.Types.Result.GetResult<Prisma.$StrankaPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   vodjaProjekta<T extends Prisma.ZaposleniDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ZaposleniDefaultArgs<ExtArgs>>): Prisma.Prisma__ZaposleniClient<runtime.Types.Result.GetResult<Prisma.$ZaposleniPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   dodelitve<T extends Prisma.Projekt$dodelitveArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Projekt$dodelitveArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DodelitevPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  ure<T extends Prisma.Projekt$ureArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Projekt$ureArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UrePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1977,6 +2101,30 @@ export type Projekt$dodelitveArgs<ExtArgs extends runtime.Types.Extensions.Inter
   take?: number
   skip?: number
   distinct?: Prisma.DodelitevScalarFieldEnum | Prisma.DodelitevScalarFieldEnum[]
+}
+
+/**
+ * Projekt.ure
+ */
+export type Projekt$ureArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Ure
+   */
+  select?: Prisma.UreSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Ure
+   */
+  omit?: Prisma.UreOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UreInclude<ExtArgs> | null
+  where?: Prisma.UreWhereInput
+  orderBy?: Prisma.UreOrderByWithRelationInput | Prisma.UreOrderByWithRelationInput[]
+  cursor?: Prisma.UreWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.UreScalarFieldEnum | Prisma.UreScalarFieldEnum[]
 }
 
 /**
