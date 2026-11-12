@@ -34,6 +34,7 @@ export type ProjectErrorCode =
   | "NOT_FOUND";
 
 export type AssignmentErrorCode =
+  | "ASSIGNMENT_NOT_FOUND"
   | "DUPLICATE_ASSIGNMENT"
   | "EMPLOYEE_NOT_AVAILABLE"
   | "NOT_MANAGER"
@@ -263,5 +264,32 @@ export async function createProjectAssignment(
     }
 
     throw error;
+  }
+}
+
+export async function deleteProjectAssignment(
+  projectId: number,
+  managerId: number,
+  employeeId: number,
+) {
+  const project = await prisma.projekt.findUnique({
+    where: { id: projectId },
+    select: { idVodjaProjekta: true },
+  });
+
+  if (!project) throw new AssignmentError("PROJECT_NOT_FOUND");
+  if (project.idVodjaProjekta !== managerId) {
+    throw new AssignmentError("NOT_MANAGER");
+  }
+
+  const result = await prisma.dodelitev.deleteMany({
+    where: {
+      idProjekt: projectId,
+      idZaposleni: employeeId,
+    },
+  });
+
+  if (result.count === 0) {
+    throw new AssignmentError("ASSIGNMENT_NOT_FOUND");
   }
 }

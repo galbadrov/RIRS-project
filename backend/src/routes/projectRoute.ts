@@ -5,6 +5,7 @@ import {
   editProject,
   listActiveEmployeesForProject,
   listProjects,
+  removeEmployeeFromProject,
   showProject,
 } from "../controllers/projectController";
 import { requireAdmin } from "../middleware/requireAdmin";
@@ -23,6 +24,11 @@ projectRouter.post(
   "/:id/assignments",
   requireEmployee,
   addEmployeeToProject,
+);
+projectRouter.delete(
+  "/:id/assignments/:employeeId",
+  requireEmployee,
+  removeEmployeeFromProject,
 );
 projectRouter.get("/:id", requireEmployee, showProject);
 projectRouter.patch("/:id", requireEmployee, editProject);

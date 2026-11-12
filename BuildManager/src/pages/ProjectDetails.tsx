@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { ArrowLeft, Pencil, Save, Users, X } from "lucide-react";
+import { ArrowLeft, Pencil, Save, Trash2, Users, X } from "lucide-react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
 import { Badge } from "@/components/ui/badge";
@@ -91,6 +91,9 @@ export default function ProjectDetails() {
   const [employeesError, setEmployeesError] = useState("");
   const [selectedEmployeeId, setSelectedEmployeeId] = useState("");
   const [isAssigning, setIsAssigning] = useState(false);
+  const [removingEmployeeId, setRemovingEmployeeId] = useState<number | null>(
+    null,
+  );
   const [assignmentError, setAssignmentError] = useState("");
   const [assignmentSuccess, setAssignmentSuccess] = useState("");
 
@@ -276,6 +279,61 @@ export default function ProjectDetails() {
       setAssignmentError("Povezava s strežnikom ni uspela.");
     } finally {
       setIsAssigning(false);
+    }
+  }
+
+  async function removeAssignment(employee: ActiveEmployee) {
+    const confirmed = window.confirm(
+      `Ali res želite odstraniti zaposlenega ${employee.ime} ${employee.priimek} s projekta?`,
+    );
+    if (!confirmed) return;
+
+    setAssignmentError("");
+    setAssignmentSuccess("");
+    setRemovingEmployeeId(employee.id_Zaposleni);
+
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL ?? "http://localhost:3000"}/api/projects/${id}/assignments/${employee.id_Zaposleni}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken") ?? ""}`,
+          },
+        },
+      );
+
+      if (response.status === 401) {
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+        localStorage.removeItem("expiresAt");
+        localStorage.removeItem("user");
+        navigate("/login", { replace: true });
+        return;
+      }
+
+      if (!response.ok) {
+        const result = (await response.json()) as { message?: string };
+        setAssignmentError(
+          result.message ?? "Dodelitve trenutno ni mogoče odstraniti.",
+        );
+        return;
+      }
+
+      setActiveEmployees((employees) =>
+        employees.map((currentEmployee) =>
+          currentEmployee.id_Zaposleni === employee.id_Zaposleni
+            ? { ...currentEmployee, dodeljen: false }
+            : currentEmployee,
+        ),
+      );
+      setAssignmentSuccess(
+        "Zaposleni je bil odstranjen s projekta. Evidentirane delovne ure so ostale nespremenjene.",
+      );
+    } catch {
+      setAssignmentError("Povezava s strežnikom ni uspela.");
+    } finally {
+      setRemovingEmployeeId(null);
     }
   }
 
@@ -628,6 +686,7 @@ export default function ProjectDetails() {
                       <TableHead>Zaposleni</TableHead>
                       <TableHead>E-pošta</TableHead>
                       <TableHead>Vloga</TableHead>
+                      <TableHead className='text-right'>Dejanja</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -641,6 +700,19 @@ export default function ProjectDetails() {
                           <Badge variant='secondary'>
                             {roleLabels[employee.vloga] ?? employee.vloga}
                           </Badge>
+                        </TableCell>
+                        <TableCell className='text-right'>
+                          <Button
+                            type='button'
+                            variant='destructive'
+                            size='sm'
+                            onClick={() => void removeAssignment(employee)}
+                            disabled={removingEmployeeId !== null}>
+                            <Trash2 />
+                            {removingEmployeeId === employee.id_Zaposleni
+                              ? "Odstranjevanje ..."
+                              : "Odstrani"}
+                          </Button>
                         </TableCell>
                       </TableRow>
                     ))}

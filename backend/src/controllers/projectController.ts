@@ -3,6 +3,7 @@ import {
   AssignmentError,
   createProjectAssignment,
   createProject,
+  deleteProjectAssignment,
   getProject,
   getProjectPageData,
   ProjectError,
@@ -218,6 +219,70 @@ export async function addEmployeeToProject(
     res.status(500).json({
       code: "SERVICE_ERROR",
       message: "Zaposlenega trenutno ni mogoče dodeliti projektu.",
+    });
+  }
+}
+
+export async function removeEmployeeFromProject(
+  req: Request,
+  res: Response,
+): Promise<void> {
+  const projectId = Number(req.params.id);
+  const employeeId = Number(req.params.employeeId);
+
+  if (
+    !Number.isInteger(projectId) ||
+    projectId <= 0 ||
+    !Number.isInteger(employeeId) ||
+    employeeId <= 0
+  ) {
+    res.status(400).json({
+      code: "VALIDATION_ERROR",
+      message: "Projekt ali zaposleni ni veljaven.",
+    });
+    return;
+  }
+
+  const employee = res.locals.employee as AuthenticatedEmployee;
+  if (employee.role !== "PROJECT_MANAGER") {
+    res.status(403).json({
+      code: "FORBIDDEN",
+      message: "Dodelitve lahko odstranjuje samo projektni vodja.",
+    });
+    return;
+  }
+
+  try {
+    await deleteProjectAssignment(projectId, employee.id, employeeId);
+    res.status(204).send();
+  } catch (error) {
+    if (error instanceof AssignmentError) {
+      if (error.code === "PROJECT_NOT_FOUND") {
+        res.status(404).json({ code: error.code, message: "Projekt ne obstaja." });
+        return;
+      }
+
+      if (error.code === "ASSIGNMENT_NOT_FOUND") {
+        res.status(404).json({
+          code: error.code,
+          message: "Zaposleni ni dodeljen temu projektu.",
+        });
+        return;
+      }
+
+      if (error.code === "NOT_MANAGER") {
+        res.status(403).json({
+          code: "FORBIDDEN",
+          message: "Dodelitve lahko odstranjujete samo s projektov, ki jih vodite.",
+        });
+        return;
+      }
+    }
+
+    console.error("Napaka pri odstranjevanju dodelitve:", error);
+    res.status(500).json({
+      code: "SERVICE_ERROR",
+      message: "Dodelitve trenutno ni mogoče odstraniti.",
     });
   }
 }
