@@ -245,6 +245,7 @@ export type ZaposleniWhereInput = {
   urnaPostavka?: Prisma.DecimalFilter<"Zaposleni"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   aktiven?: Prisma.BoolFilter<"Zaposleni"> | boolean
   vodeniProjekti?: Prisma.ProjektListRelationFilter
+  dodelitve?: Prisma.DodelitevListRelationFilter
 }
 
 export type ZaposleniOrderByWithRelationInput = {
@@ -257,6 +258,7 @@ export type ZaposleniOrderByWithRelationInput = {
   urnaPostavka?: Prisma.SortOrder
   aktiven?: Prisma.SortOrder
   vodeniProjekti?: Prisma.ProjektOrderByRelationAggregateInput
+  dodelitve?: Prisma.DodelitevOrderByRelationAggregateInput
 }
 
 export type ZaposleniWhereUniqueInput = Prisma.AtLeast<{
@@ -272,6 +274,7 @@ export type ZaposleniWhereUniqueInput = Prisma.AtLeast<{
   urnaPostavka?: Prisma.DecimalFilter<"Zaposleni"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   aktiven?: Prisma.BoolFilter<"Zaposleni"> | boolean
   vodeniProjekti?: Prisma.ProjektListRelationFilter
+  dodelitve?: Prisma.DodelitevListRelationFilter
 }, "id" | "supabaseUid" | "email">
 
 export type ZaposleniOrderByWithAggregationInput = {
@@ -313,6 +316,7 @@ export type ZaposleniCreateInput = {
   urnaPostavka: runtime.Decimal | runtime.DecimalJsLike | number | string
   aktiven?: boolean
   vodeniProjekti?: Prisma.ProjektCreateNestedManyWithoutVodjaProjektaInput
+  dodelitve?: Prisma.DodelitevCreateNestedManyWithoutZaposleniInput
 }
 
 export type ZaposleniUncheckedCreateInput = {
@@ -325,6 +329,7 @@ export type ZaposleniUncheckedCreateInput = {
   urnaPostavka: runtime.Decimal | runtime.DecimalJsLike | number | string
   aktiven?: boolean
   vodeniProjekti?: Prisma.ProjektUncheckedCreateNestedManyWithoutVodjaProjektaInput
+  dodelitve?: Prisma.DodelitevUncheckedCreateNestedManyWithoutZaposleniInput
 }
 
 export type ZaposleniUpdateInput = {
@@ -336,6 +341,7 @@ export type ZaposleniUpdateInput = {
   urnaPostavka?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   aktiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   vodeniProjekti?: Prisma.ProjektUpdateManyWithoutVodjaProjektaNestedInput
+  dodelitve?: Prisma.DodelitevUpdateManyWithoutZaposleniNestedInput
 }
 
 export type ZaposleniUncheckedUpdateInput = {
@@ -348,6 +354,7 @@ export type ZaposleniUncheckedUpdateInput = {
   urnaPostavka?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   aktiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   vodeniProjekti?: Prisma.ProjektUncheckedUpdateManyWithoutVodjaProjektaNestedInput
+  dodelitve?: Prisma.DodelitevUncheckedUpdateManyWithoutZaposleniNestedInput
 }
 
 export type ZaposleniCreateManyInput = {
@@ -468,6 +475,20 @@ export type ZaposleniUpdateOneRequiredWithoutVodeniProjektiNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ZaposleniUpdateToOneWithWhereWithoutVodeniProjektiInput, Prisma.ZaposleniUpdateWithoutVodeniProjektiInput>, Prisma.ZaposleniUncheckedUpdateWithoutVodeniProjektiInput>
 }
 
+export type ZaposleniCreateNestedOneWithoutDodelitveInput = {
+  create?: Prisma.XOR<Prisma.ZaposleniCreateWithoutDodelitveInput, Prisma.ZaposleniUncheckedCreateWithoutDodelitveInput>
+  connectOrCreate?: Prisma.ZaposleniCreateOrConnectWithoutDodelitveInput
+  connect?: Prisma.ZaposleniWhereUniqueInput
+}
+
+export type ZaposleniUpdateOneRequiredWithoutDodelitveNestedInput = {
+  create?: Prisma.XOR<Prisma.ZaposleniCreateWithoutDodelitveInput, Prisma.ZaposleniUncheckedCreateWithoutDodelitveInput>
+  connectOrCreate?: Prisma.ZaposleniCreateOrConnectWithoutDodelitveInput
+  upsert?: Prisma.ZaposleniUpsertWithoutDodelitveInput
+  connect?: Prisma.ZaposleniWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ZaposleniUpdateToOneWithWhereWithoutDodelitveInput, Prisma.ZaposleniUpdateWithoutDodelitveInput>, Prisma.ZaposleniUncheckedUpdateWithoutDodelitveInput>
+}
+
 export type ZaposleniCreateWithoutVodeniProjektiInput = {
   supabaseUid: string
   ime: string
@@ -476,6 +497,7 @@ export type ZaposleniCreateWithoutVodeniProjektiInput = {
   vloga: string
   urnaPostavka: runtime.Decimal | runtime.DecimalJsLike | number | string
   aktiven?: boolean
+  dodelitve?: Prisma.DodelitevCreateNestedManyWithoutZaposleniInput
 }
 
 export type ZaposleniUncheckedCreateWithoutVodeniProjektiInput = {
@@ -487,6 +509,7 @@ export type ZaposleniUncheckedCreateWithoutVodeniProjektiInput = {
   vloga: string
   urnaPostavka: runtime.Decimal | runtime.DecimalJsLike | number | string
   aktiven?: boolean
+  dodelitve?: Prisma.DodelitevUncheckedCreateNestedManyWithoutZaposleniInput
 }
 
 export type ZaposleniCreateOrConnectWithoutVodeniProjektiInput = {
@@ -513,6 +536,7 @@ export type ZaposleniUpdateWithoutVodeniProjektiInput = {
   vloga?: Prisma.StringFieldUpdateOperationsInput | string
   urnaPostavka?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   aktiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  dodelitve?: Prisma.DodelitevUpdateManyWithoutZaposleniNestedInput
 }
 
 export type ZaposleniUncheckedUpdateWithoutVodeniProjektiInput = {
@@ -524,6 +548,69 @@ export type ZaposleniUncheckedUpdateWithoutVodeniProjektiInput = {
   vloga?: Prisma.StringFieldUpdateOperationsInput | string
   urnaPostavka?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   aktiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  dodelitve?: Prisma.DodelitevUncheckedUpdateManyWithoutZaposleniNestedInput
+}
+
+export type ZaposleniCreateWithoutDodelitveInput = {
+  supabaseUid: string
+  ime: string
+  priimek: string
+  email: string
+  vloga: string
+  urnaPostavka: runtime.Decimal | runtime.DecimalJsLike | number | string
+  aktiven?: boolean
+  vodeniProjekti?: Prisma.ProjektCreateNestedManyWithoutVodjaProjektaInput
+}
+
+export type ZaposleniUncheckedCreateWithoutDodelitveInput = {
+  id?: number
+  supabaseUid: string
+  ime: string
+  priimek: string
+  email: string
+  vloga: string
+  urnaPostavka: runtime.Decimal | runtime.DecimalJsLike | number | string
+  aktiven?: boolean
+  vodeniProjekti?: Prisma.ProjektUncheckedCreateNestedManyWithoutVodjaProjektaInput
+}
+
+export type ZaposleniCreateOrConnectWithoutDodelitveInput = {
+  where: Prisma.ZaposleniWhereUniqueInput
+  create: Prisma.XOR<Prisma.ZaposleniCreateWithoutDodelitveInput, Prisma.ZaposleniUncheckedCreateWithoutDodelitveInput>
+}
+
+export type ZaposleniUpsertWithoutDodelitveInput = {
+  update: Prisma.XOR<Prisma.ZaposleniUpdateWithoutDodelitveInput, Prisma.ZaposleniUncheckedUpdateWithoutDodelitveInput>
+  create: Prisma.XOR<Prisma.ZaposleniCreateWithoutDodelitveInput, Prisma.ZaposleniUncheckedCreateWithoutDodelitveInput>
+  where?: Prisma.ZaposleniWhereInput
+}
+
+export type ZaposleniUpdateToOneWithWhereWithoutDodelitveInput = {
+  where?: Prisma.ZaposleniWhereInput
+  data: Prisma.XOR<Prisma.ZaposleniUpdateWithoutDodelitveInput, Prisma.ZaposleniUncheckedUpdateWithoutDodelitveInput>
+}
+
+export type ZaposleniUpdateWithoutDodelitveInput = {
+  supabaseUid?: Prisma.StringFieldUpdateOperationsInput | string
+  ime?: Prisma.StringFieldUpdateOperationsInput | string
+  priimek?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  vloga?: Prisma.StringFieldUpdateOperationsInput | string
+  urnaPostavka?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  aktiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  vodeniProjekti?: Prisma.ProjektUpdateManyWithoutVodjaProjektaNestedInput
+}
+
+export type ZaposleniUncheckedUpdateWithoutDodelitveInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  supabaseUid?: Prisma.StringFieldUpdateOperationsInput | string
+  ime?: Prisma.StringFieldUpdateOperationsInput | string
+  priimek?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  vloga?: Prisma.StringFieldUpdateOperationsInput | string
+  urnaPostavka?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  aktiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  vodeniProjekti?: Prisma.ProjektUncheckedUpdateManyWithoutVodjaProjektaNestedInput
 }
 
 
@@ -533,10 +620,12 @@ export type ZaposleniUncheckedUpdateWithoutVodeniProjektiInput = {
 
 export type ZaposleniCountOutputType = {
   vodeniProjekti: number
+  dodelitve: number
 }
 
 export type ZaposleniCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   vodeniProjekti?: boolean | ZaposleniCountOutputTypeCountVodeniProjektiArgs
+  dodelitve?: boolean | ZaposleniCountOutputTypeCountDodelitveArgs
 }
 
 /**
@@ -556,6 +645,13 @@ export type ZaposleniCountOutputTypeCountVodeniProjektiArgs<ExtArgs extends runt
   where?: Prisma.ProjektWhereInput
 }
 
+/**
+ * ZaposleniCountOutputType without action
+ */
+export type ZaposleniCountOutputTypeCountDodelitveArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.DodelitevWhereInput
+}
+
 
 export type ZaposleniSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -567,6 +663,7 @@ export type ZaposleniSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   urnaPostavka?: boolean
   aktiven?: boolean
   vodeniProjekti?: boolean | Prisma.Zaposleni$vodeniProjektiArgs<ExtArgs>
+  dodelitve?: boolean | Prisma.Zaposleni$dodelitveArgs<ExtArgs>
   _count?: boolean | Prisma.ZaposleniCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["zaposleni"]>
 
@@ -606,6 +703,7 @@ export type ZaposleniSelectScalar = {
 export type ZaposleniOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "supabaseUid" | "ime" | "priimek" | "email" | "vloga" | "urnaPostavka" | "aktiven", ExtArgs["result"]["zaposleni"]>
 export type ZaposleniInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   vodeniProjekti?: boolean | Prisma.Zaposleni$vodeniProjektiArgs<ExtArgs>
+  dodelitve?: boolean | Prisma.Zaposleni$dodelitveArgs<ExtArgs>
   _count?: boolean | Prisma.ZaposleniCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ZaposleniIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -615,6 +713,7 @@ export type $ZaposleniPayload<ExtArgs extends runtime.Types.Extensions.InternalA
   name: "Zaposleni"
   objects: {
     vodeniProjekti: Prisma.$ProjektPayload<ExtArgs>[]
+    dodelitve: Prisma.$DodelitevPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1020,6 +1119,7 @@ readonly fields: ZaposleniFieldRefs;
 export interface Prisma__ZaposleniClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   vodeniProjekti<T extends Prisma.Zaposleni$vodeniProjektiArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Zaposleni$vodeniProjektiArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjektPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  dodelitve<T extends Prisma.Zaposleni$dodelitveArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Zaposleni$dodelitveArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DodelitevPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1471,6 +1571,30 @@ export type Zaposleni$vodeniProjektiArgs<ExtArgs extends runtime.Types.Extension
   take?: number
   skip?: number
   distinct?: Prisma.ProjektScalarFieldEnum | Prisma.ProjektScalarFieldEnum[]
+}
+
+/**
+ * Zaposleni.dodelitve
+ */
+export type Zaposleni$dodelitveArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Dodelitev
+   */
+  select?: Prisma.DodelitevSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Dodelitev
+   */
+  omit?: Prisma.DodelitevOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DodelitevInclude<ExtArgs> | null
+  where?: Prisma.DodelitevWhereInput
+  orderBy?: Prisma.DodelitevOrderByWithRelationInput | Prisma.DodelitevOrderByWithRelationInput[]
+  cursor?: Prisma.DodelitevWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.DodelitevScalarFieldEnum | Prisma.DodelitevScalarFieldEnum[]
 }
 
 /**

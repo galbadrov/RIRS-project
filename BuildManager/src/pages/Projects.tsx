@@ -26,6 +26,13 @@ type Project = {
   vodjaProjekta: ProjectManager;
 };
 
+const statusLabels: Record<string, string> = {
+  NACRTOVAN: "Načrtovan",
+  V_TEKU: "V teku",
+  ZAKLJUCEN: "Zaključen",
+  PREKLICAN: "Preklican",
+};
+
 const initialForm = {
   naziv: "",
   opis: "",
@@ -39,6 +46,16 @@ const initialForm = {
 
 export function Projects() {
   const navigate = useNavigate();
+  const isAdmin = (() => {
+    try {
+      const user = JSON.parse(localStorage.getItem("user") ?? "null") as {
+        vloga?: string;
+      } | null;
+      return user?.vloga === "ADMIN";
+    } catch {
+      return false;
+    }
+  })();
   const [projects, setProjects] = useState<Project[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
   const [projectManagers, setProjectManagers] = useState<ProjectManager[]>([]);
@@ -149,11 +166,13 @@ export function Projects() {
           <h1 className='text-2xl font-bold text-slate-900'>Projekti</h1>
           <p className='mt-1 text-sm text-slate-600'>Pregled projektov, rokov in dogovorjenih cen.</p>
         </div>
-        <Button type='button' onClick={() => { setForm(initialForm); setFormError(""); setSheetOpen(true); }}>
-          <Plus /> Nov projekt
-        </Button>
+        {isAdmin && (
+          <Button type='button' onClick={() => { setForm(initialForm); setFormError(""); setSheetOpen(true); }}>
+            <Plus /> Nov projekt
+          </Button>
+        )}
 
-        <Sheet open={sheetOpen} onOpenChange={(open) => { setSheetOpen(open); if (!open) setFormError(""); }}>
+        {isAdmin && <Sheet open={sheetOpen} onOpenChange={(open) => { setSheetOpen(open); if (!open) setFormError(""); }}>
           <SheetContent className='overflow-y-auto sm:max-w-lg'>
             <SheetHeader>
               <SheetTitle>Nov projekt</SheetTitle>
@@ -212,7 +231,7 @@ export function Projects() {
               </SheetFooter>
             </form>
           </SheetContent>
-        </Sheet>
+        </Sheet>}
       </div>
 
       <Sheet
@@ -225,9 +244,9 @@ export function Projects() {
             <div className='flex items-center gap-2 pr-8'>
               <SheetTitle>{selectedProject?.naziv}</SheetTitle>
               <Badge variant='secondary'>
-                {selectedProject?.status === "NACRTOVAN"
-                  ? "Načrtovan"
-                  : selectedProject?.status}
+                {selectedProject
+                  ? statusLabels[selectedProject.status] ?? selectedProject.status
+                  : ""}
               </Badge>
             </div>
             <SheetDescription>
@@ -338,9 +357,7 @@ export function Projects() {
                 <TableCell>{new Intl.NumberFormat("sl-SI", { style: "currency", currency: "EUR" }).format(project.dogovorjenaCena)}</TableCell>
                 <TableCell>
                   <Badge variant='secondary'>
-                    {project.status === "NACRTOVAN"
-                      ? "Načrtovan"
-                      : project.status}
+                    {statusLabels[project.status] ?? project.status}
                   </Badge>
                 </TableCell>
                 <TableCell className='text-right'>

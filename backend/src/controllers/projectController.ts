@@ -1,10 +1,17 @@
 import type { Request, Response } from "express";
 import {
+  AssignmentError,
+  createProjectAssignment,
   createProject,
+  deleteProjectAssignment,
   getProject,
   getProjectPageData,
   ProjectError,
+  projectStatuses,
+  updateProject,
 } from "../models/projectModel";
+import { getActiveEmployees } from "../models/employeeModel";
+import type { AuthenticatedEmployee } from "../middleware/requireEmployee";
 
 function parseDate(value: unknown) {
   if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
@@ -20,7 +27,17 @@ function parseDate(value: unknown) {
 
 export async function listProjects(_req: Request, res: Response): Promise<void> {
   try {
-    res.json(await getProjectPageData());
+    const employee = res.locals.employee as AuthenticatedEmployee;
+    if (employee.role !== "ADMIN" && employee.role !== "PROJECT_MANAGER") {
+      res.status(403).json({ code: "FORBIDDEN", message: "Dostop ni dovoljen." });
+      return;
+    }
+
+    res.json(
+      await getProjectPageData(
+        employee.role === "PROJECT_MANAGER" ? employee.id : undefined,
+      ),
+    );
   } catch (error) {
     console.error("Napaka pri pridobivanju projektov:", error);
     res.status(500).json({
@@ -42,7 +59,22 @@ export async function showProject(req: Request, res: Response): Promise<void> {
   }
 
   try {
-    res.json({ project: await getProject(id) });
+    const project = await getProject(id);
+    const employee = res.locals.employee as AuthenticatedEmployee;
+
+    if (
+      employee.role !== "ADMIN" &&
+      (employee.role !== "PROJECT_MANAGER" ||
+        project.vodjaProjekta.id_Zaposleni !== employee.id)
+    ) {
+      res.status(403).json({
+        code: "FORBIDDEN",
+        message: "Dostop do tega projekta ni dovoljen.",
+      });
+      return;
+    }
+
+    res.json({ project });
   } catch (error) {
     if (error instanceof ProjectError && error.code === "NOT_FOUND") {
       res.status(404).json({
@@ -56,6 +88,275 @@ export async function showProject(req: Request, res: Response): Promise<void> {
     res.status(500).json({
       code: "SERVICE_ERROR",
       message: "Projekta trenutno ni mogoče pridobiti.",
+    });
+  }
+}
+
+export async function listActiveEmployeesForProject(
+  req: Request,
+  res: Response,
+): Promise<void> {
+  const id = Number(req.params.id);
+
+  if (!Number.isInteger(id) || id <= 0) {
+    res.status(400).json({
+      code: "VALIDATION_ERROR",
+      message: "Identifikator projekta ni veljaven.",
+    });
+    return;
+  }
+
+  const employee = res.locals.employee as AuthenticatedEmployee;
+  if (employee.role !== "PROJECT_MANAGER") {
+    res.status(403).json({
+      code: "FORBIDDEN",
+      message: "Aktivne zaposlene lahko pregleduje samo projektni vodja.",
+    });
+    return;
+  }
+
+  try {
+    const project = await getProject(id);
+
+    if (project.vodjaProjekta.id_Zaposleni !== employee.id) {
+      res.status(403).json({
+        code: "FORBIDDEN",
+        message: "Dostop do zaposlenih na tem projektu ni dovoljen.",
+      });
+      return;
+    }
+
+    res.json({ employees: await getActiveEmployees(id) });
+  } catch (error) {
+    if (error instanceof ProjectError && error.code === "NOT_FOUND") {
+      res.status(404).json({
+        code: error.code,
+        message: "Projekt ne obstaja.",
+      });
+      return;
+    }
+
+    console.error("Napaka pri pridobivanju aktivnih zaposlenih:", error);
+    res.status(500).json({
+      code: "SERVICE_ERROR",
+      message: "Aktivnih zaposlenih trenutno ni mogoče pridobiti.",
+    });
+  }
+}
+
+export async function addEmployeeToProject(
+  req: Request,
+  res: Response,
+): Promise<void> {
+  const projectId = Number(req.params.id);
+  const { idZaposleni } = req.body as Record<string, unknown>;
+
+  if (
+    !Number.isInteger(projectId) ||
+    projectId <= 0 ||
+    !Number.isInteger(idZaposleni) ||
+    Number(idZaposleni) <= 0
+  ) {
+    res.status(400).json({
+      code: "VALIDATION_ERROR",
+      message: "Izberite veljavnega zaposlenega.",
+    });
+    return;
+  }
+
+  const employee = res.locals.employee as AuthenticatedEmployee;
+  if (employee.role !== "PROJECT_MANAGER") {
+    res.status(403).json({
+      code: "FORBIDDEN",
+      message: "Zaposlene lahko dodeljuje samo projektni vodja.",
+    });
+    return;
+  }
+
+  try {
+    const assignment = await createProjectAssignment(
+      projectId,
+      employee.id,
+      Number(idZaposleni),
+    );
+    res.status(201).json({ assignment });
+  } catch (error) {
+    if (error instanceof AssignmentError) {
+      if (error.code === "DUPLICATE_ASSIGNMENT") {
+        res.status(409).json({
+          code: error.code,
+          message: "Ta zaposleni je projektu že dodeljen.",
+        });
+        return;
+      }
+
+      if (error.code === "EMPLOYEE_NOT_AVAILABLE") {
+        res.status(400).json({
+          code: error.code,
+          message: "Izbrani zaposleni ni aktiven ali ne obstaja.",
+        });
+        return;
+      }
+
+      if (error.code === "NOT_MANAGER") {
+        res.status(403).json({
+          code: "FORBIDDEN",
+          message: "Zaposlene lahko dodeljujete samo projektom, ki jih vodite.",
+        });
+        return;
+      }
+
+      if (error.code === "PROJECT_NOT_FOUND") {
+        res.status(404).json({
+          code: error.code,
+          message: "Projekt ne obstaja.",
+        });
+        return;
+      }
+    }
+
+    console.error("Napaka pri dodeljevanju zaposlenega:", error);
+    res.status(500).json({
+      code: "SERVICE_ERROR",
+      message: "Zaposlenega trenutno ni mogoče dodeliti projektu.",
+    });
+  }
+}
+
+export async function removeEmployeeFromProject(
+  req: Request,
+  res: Response,
+): Promise<void> {
+  const projectId = Number(req.params.id);
+  const employeeId = Number(req.params.employeeId);
+
+  if (
+    !Number.isInteger(projectId) ||
+    projectId <= 0 ||
+    !Number.isInteger(employeeId) ||
+    employeeId <= 0
+  ) {
+    res.status(400).json({
+      code: "VALIDATION_ERROR",
+      message: "Projekt ali zaposleni ni veljaven.",
+    });
+    return;
+  }
+
+  const employee = res.locals.employee as AuthenticatedEmployee;
+  if (employee.role !== "PROJECT_MANAGER") {
+    res.status(403).json({
+      code: "FORBIDDEN",
+      message: "Dodelitve lahko odstranjuje samo projektni vodja.",
+    });
+    return;
+  }
+
+  try {
+    await deleteProjectAssignment(projectId, employee.id, employeeId);
+    res.status(204).send();
+  } catch (error) {
+    if (error instanceof AssignmentError) {
+      if (error.code === "PROJECT_NOT_FOUND") {
+        res.status(404).json({ code: error.code, message: "Projekt ne obstaja." });
+        return;
+      }
+
+      if (error.code === "ASSIGNMENT_NOT_FOUND") {
+        res.status(404).json({
+          code: error.code,
+          message: "Zaposleni ni dodeljen temu projektu.",
+        });
+        return;
+      }
+
+      if (error.code === "NOT_MANAGER") {
+        res.status(403).json({
+          code: "FORBIDDEN",
+          message: "Dodelitve lahko odstranjujete samo s projektov, ki jih vodite.",
+        });
+        return;
+      }
+    }
+
+    console.error("Napaka pri odstranjevanju dodelitve:", error);
+    res.status(500).json({
+      code: "SERVICE_ERROR",
+      message: "Dodelitve trenutno ni mogoče odstraniti.",
+    });
+  }
+}
+
+export async function editProject(req: Request, res: Response): Promise<void> {
+  const id = Number(req.params.id);
+  const { opis, datumZacetka, datumZakljucka, status } = req.body as Record<
+    string,
+    unknown
+  >;
+  const startDate = parseDate(datumZacetka);
+  const endDate = parseDate(datumZakljucka);
+
+  if (
+    !Number.isInteger(id) ||
+    id <= 0 ||
+    typeof opis !== "string" ||
+    !opis.trim() ||
+    !startDate ||
+    !endDate ||
+    endDate < startDate ||
+    typeof status !== "string" ||
+    !projectStatuses.includes(status as (typeof projectStatuses)[number])
+  ) {
+    res.status(400).json({
+      code: "VALIDATION_ERROR",
+      message:
+        endDate && startDate && endDate < startDate
+          ? "Datum zaključka ne sme biti pred datumom začetka."
+          : "Preverite vnesene podatke projekta.",
+    });
+    return;
+  }
+
+  const employee = res.locals.employee as AuthenticatedEmployee;
+  if (employee.role !== "ADMIN" && employee.role !== "PROJECT_MANAGER") {
+    res.status(403).json({
+      code: "FORBIDDEN",
+      message: "Projekt lahko ureja administrator ali njegov projektni vodja.",
+    });
+    return;
+  }
+
+  try {
+    const project = await updateProject(
+      id,
+      employee.role === "ADMIN" ? undefined : employee.id,
+      {
+        opis,
+        datumZacetka: startDate,
+        datumZakljucka: endDate,
+        status: status as (typeof projectStatuses)[number],
+      },
+    );
+    res.json({ project });
+  } catch (error) {
+    if (error instanceof ProjectError) {
+      if (error.code === "NOT_FOUND") {
+        res.status(404).json({ code: error.code, message: "Projekt ne obstaja." });
+        return;
+      }
+      if (error.code === "NOT_MANAGER") {
+        res.status(403).json({
+          code: "FORBIDDEN",
+          message: "Urejate lahko samo projekte, ki jih vodite.",
+        });
+        return;
+      }
+    }
+
+    console.error("Napaka pri posodabljanju projekta:", error);
+    res.status(500).json({
+      code: "SERVICE_ERROR",
+      message: "Projekta trenutno ni mogoče posodobiti.",
     });
   }
 }

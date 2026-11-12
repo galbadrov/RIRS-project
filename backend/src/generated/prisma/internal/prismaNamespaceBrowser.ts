@@ -53,7 +53,8 @@ export const AnyNull = runtime.AnyNull
 export const ModelName = {
   Zaposleni: 'Zaposleni',
   Stranka: 'Stranka',
-  Projekt: 'Projekt'
+  Projekt: 'Projekt',
+  Dodelitev: 'Dodelitev'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -114,6 +115,16 @@ export const ProjektScalarFieldEnum = {
 } as const
 
 export type ProjektScalarFieldEnum = (typeof ProjektScalarFieldEnum)[keyof typeof ProjektScalarFieldEnum]
+
+
+export const DodelitevScalarFieldEnum = {
+  id: 'id',
+  idProjekt: 'idProjekt',
+  idZaposleni: 'idZaposleni',
+  datumDodelitve: 'datumDodelitve'
+} as const
+
+export type DodelitevScalarFieldEnum = (typeof DodelitevScalarFieldEnum)[keyof typeof DodelitevScalarFieldEnum]
 
 
 export const SortOrder = {

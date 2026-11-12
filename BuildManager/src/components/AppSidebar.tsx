@@ -25,16 +25,18 @@ import {
 export default function AppSidebar() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
-  const isAdmin = (() => {
+  const role = (() => {
     try {
       const user = JSON.parse(localStorage.getItem("user") ?? "null") as {
         vloga?: string;
       } | null;
-      return user?.vloga === "ADMIN";
+      return user?.vloga;
     } catch {
-      return false;
+      return undefined;
     }
   })();
+  const isAdmin = role === "ADMIN";
+  const canViewProjects = isAdmin || role === "PROJECT_MANAGER";
 
   function handleLogout() {
     localStorage.removeItem("accessToken");
@@ -99,17 +101,6 @@ export default function AppSidebar() {
                   <SidebarMenuItem>
                     <SidebarMenuButton
                       asChild
-                      isActive={pathname.startsWith("/projekti")}
-                      tooltip='Projekti'>
-                      <Link to='/projekti'>
-                        <FolderKanban />
-                        <span>Projekti</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton
-                      asChild
                       isActive={pathname === "/racuni"}
                       tooltip='Računi'>
                       <Link to='/racuni'>
@@ -119,6 +110,19 @@ export default function AppSidebar() {
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 </>
+              )}
+              {canViewProjects && (
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={pathname.startsWith("/projekti")}
+                    tooltip='Projekti'>
+                    <Link to='/projekti'>
+                      <FolderKanban />
+                      <span>Projekti</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
               )}
             </SidebarMenu>
           </SidebarGroupContent>

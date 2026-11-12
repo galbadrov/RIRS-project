@@ -1,16 +1,36 @@
 import express from "express";
 import {
+  addEmployeeToProject,
   addProject,
+  editProject,
+  listActiveEmployeesForProject,
   listProjects,
+  removeEmployeeFromProject,
   showProject,
 } from "../controllers/projectController";
 import { requireAdmin } from "../middleware/requireAdmin";
+import { requireEmployee } from "../middleware/requireEmployee";
 
 const projectRouter = express.Router();
 
-projectRouter.use(requireAdmin);
-projectRouter.get("/", listProjects);
-projectRouter.get("/:id", showProject);
-projectRouter.post("/", addProject);
+projectRouter.get("/", requireEmployee, listProjects);
+projectRouter.post("/", requireAdmin, addProject);
+projectRouter.get(
+  "/:id/active-employees",
+  requireEmployee,
+  listActiveEmployeesForProject,
+);
+projectRouter.post(
+  "/:id/assignments",
+  requireEmployee,
+  addEmployeeToProject,
+);
+projectRouter.delete(
+  "/:id/assignments/:employeeId",
+  requireEmployee,
+  removeEmployeeFromProject,
+);
+projectRouter.get("/:id", requireEmployee, showProject);
+projectRouter.patch("/:id", requireEmployee, editProject);
 
 export default projectRouter;

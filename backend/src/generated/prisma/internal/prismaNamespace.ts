@@ -399,7 +399,8 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 export const ModelName = {
   Zaposleni: 'Zaposleni',
   Stranka: 'Stranka',
-  Projekt: 'Projekt'
+  Projekt: 'Projekt',
+  Dodelitev: 'Dodelitev'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -415,7 +416,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "zaposleni" | "stranka" | "projekt"
+    modelProps: "zaposleni" | "stranka" | "projekt" | "dodelitev"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -641,6 +642,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Dodelitev: {
+      payload: Prisma.$DodelitevPayload<ExtArgs>
+      fields: Prisma.DodelitevFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DodelitevFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DodelitevPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DodelitevFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DodelitevPayload>
+        }
+        findFirst: {
+          args: Prisma.DodelitevFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DodelitevPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DodelitevFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DodelitevPayload>
+        }
+        findMany: {
+          args: Prisma.DodelitevFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DodelitevPayload>[]
+        }
+        create: {
+          args: Prisma.DodelitevCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DodelitevPayload>
+        }
+        createMany: {
+          args: Prisma.DodelitevCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.DodelitevCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DodelitevPayload>[]
+        }
+        delete: {
+          args: Prisma.DodelitevDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DodelitevPayload>
+        }
+        update: {
+          args: Prisma.DodelitevUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DodelitevPayload>
+        }
+        deleteMany: {
+          args: Prisma.DodelitevDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DodelitevUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.DodelitevUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DodelitevPayload>[]
+        }
+        upsert: {
+          args: Prisma.DodelitevUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DodelitevPayload>
+        }
+        aggregate: {
+          args: Prisma.DodelitevAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDodelitev>
+        }
+        groupBy: {
+          args: Prisma.DodelitevGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DodelitevGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DodelitevCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DodelitevCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -722,6 +797,16 @@ export const ProjektScalarFieldEnum = {
 } as const
 
 export type ProjektScalarFieldEnum = (typeof ProjektScalarFieldEnum)[keyof typeof ProjektScalarFieldEnum]
+
+
+export const DodelitevScalarFieldEnum = {
+  id: 'id',
+  idProjekt: 'idProjekt',
+  idZaposleni: 'idZaposleni',
+  datumDodelitve: 'datumDodelitve'
+} as const
+
+export type DodelitevScalarFieldEnum = (typeof DodelitevScalarFieldEnum)[keyof typeof DodelitevScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -984,6 +1069,7 @@ export type GlobalOmitConfig = {
   zaposleni?: Prisma.ZaposleniOmit
   stranka?: Prisma.StrankaOmit
   projekt?: Prisma.ProjektOmit
+  dodelitev?: Prisma.DodelitevOmit
 }
 
 /* Types for Logging */

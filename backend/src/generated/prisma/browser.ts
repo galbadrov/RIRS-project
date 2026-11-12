@@ -32,3 +32,8 @@ export type Stranka = Prisma.StrankaModel
  * 
  */
 export type Projekt = Prisma.ProjektModel
+/**
+ * Model Dodelitev
+ * 
+ */
+export type Dodelitev = Prisma.DodelitevModel

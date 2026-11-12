@@ -60,6 +60,31 @@ export async function getEmployees() {
   return employees.map(serializeEmployee);
 }
 
+export async function getActiveEmployees(projectId: number) {
+  const employees = await prisma.zaposleni.findMany({
+    where: { aktiven: true },
+    select: {
+      id: true,
+      ime: true,
+      priimek: true,
+      email: true,
+      vloga: true,
+      dodelitve: {
+        where: { idProjekt: projectId },
+        select: { id: true },
+        take: 1,
+      },
+    },
+    orderBy: [{ priimek: "asc" }, { ime: "asc" }],
+  });
+
+  return employees.map(({ id, dodelitve, ...employee }) => ({
+    ...employee,
+    id_Zaposleni: id,
+    dodeljen: dodelitve.length > 0,
+  }));
+}
+
 export async function createEmployee(input: NewEmployee) {
   const email = input.email.trim().toLowerCase();
   const existingEmployee = await prisma.zaposleni.findFirst({

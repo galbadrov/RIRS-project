@@ -11,13 +11,43 @@ type NewProject = {
   dogovorjenaCena: number;
 };
 
+type ProjectUpdate = {
+  opis: string;
+  datumZacetka: Date;
+  datumZakljucka: Date;
+  status: ProjectStatus;
+};
+
+export const projectStatuses = [
+  "NACRTOVAN",
+  "V_TEKU",
+  "ZAKLJUCEN",
+  "PREKLICAN",
+] as const;
+
+export type ProjectStatus = (typeof projectStatuses)[number];
+
 export type ProjectErrorCode =
   | "CLIENT_NOT_FOUND"
   | "MANAGER_NOT_AVAILABLE"
+  | "NOT_MANAGER"
   | "NOT_FOUND";
+
+export type AssignmentErrorCode =
+  | "ASSIGNMENT_NOT_FOUND"
+  | "DUPLICATE_ASSIGNMENT"
+  | "EMPLOYEE_NOT_AVAILABLE"
+  | "NOT_MANAGER"
+  | "PROJECT_NOT_FOUND";
 
 export class ProjectError extends Error {
   constructor(public readonly code: ProjectErrorCode) {
+    super(code);
+  }
+}
+
+export class AssignmentError extends Error {
+  constructor(public readonly code: AssignmentErrorCode) {
     super(code);
   }
 }
@@ -68,21 +98,26 @@ function serializeProject(project: {
   };
 }
 
-export async function getProjectPageData() {
+export async function getProjectPageData(managerId?: number) {
   const [projects, clients, projectManagers] = await Promise.all([
     prisma.projekt.findMany({
+      where: managerId === undefined ? undefined : { idVodjaProjekta: managerId },
       select: projectSelection,
       orderBy: { datumZacetka: "desc" },
     }),
-    prisma.stranka.findMany({
-      select: { id: true, naziv: true },
-      orderBy: { naziv: "asc" },
-    }),
-    prisma.zaposleni.findMany({
-      where: { aktiven: true, vloga: "PROJECT_MANAGER" },
-      select: { id: true, ime: true, priimek: true },
-      orderBy: [{ priimek: "asc" }, { ime: "asc" }],
-    }),
+    managerId === undefined
+      ? prisma.stranka.findMany({
+          select: { id: true, naziv: true },
+          orderBy: { naziv: "asc" },
+        })
+      : [],
+    managerId === undefined
+      ? prisma.zaposleni.findMany({
+          where: { aktiven: true, vloga: "PROJECT_MANAGER" },
+          select: { id: true, ime: true, priimek: true },
+          orderBy: [{ priimek: "asc" }, { ime: "asc" }],
+        })
+      : [],
   ]);
 
   return {
@@ -144,4 +179,117 @@ export async function createProject(input: NewProject) {
   });
 
   return serializeProject(project);
+}
+
+export async function updateProject(
+  id: number,
+  managerId: number | undefined,
+  input: ProjectUpdate,
+) {
+  const existingProject = await prisma.projekt.findUnique({
+    where: { id },
+    select: { idVodjaProjekta: true },
+  });
+
+  if (!existingProject) throw new ProjectError("NOT_FOUND");
+  if (
+    managerId !== undefined &&
+    existingProject.idVodjaProjekta !== managerId
+  ) {
+    throw new ProjectError("NOT_MANAGER");
+  }
+
+  const project = await prisma.projekt.update({
+    where: { id },
+    data: {
+      opis: input.opis.trim(),
+      datumZacetka: input.datumZacetka,
+      datumZakljucka: input.datumZakljucka,
+      status: input.status,
+    },
+    select: projectSelection,
+  });
+
+  return serializeProject(project);
+}
+
+export async function createProjectAssignment(
+  projectId: number,
+  managerId: number,
+  employeeId: number,
+) {
+  const [project, employee] = await Promise.all([
+    prisma.projekt.findUnique({
+      where: { id: projectId },
+      select: { idVodjaProjekta: true },
+    }),
+    prisma.zaposleni.findFirst({
+      where: { id: employeeId, aktiven: true },
+      select: { id: true },
+    }),
+  ]);
+
+  if (!project) throw new AssignmentError("PROJECT_NOT_FOUND");
+  if (project.idVodjaProjekta !== managerId) {
+    throw new AssignmentError("NOT_MANAGER");
+  }
+  if (!employee) throw new AssignmentError("EMPLOYEE_NOT_AVAILABLE");
+
+  try {
+    const assignment = await prisma.dodelitev.create({
+      data: {
+        idProjekt: projectId,
+        idZaposleni: employeeId,
+      },
+      select: {
+        id: true,
+        idProjekt: true,
+        idZaposleni: true,
+      },
+    });
+
+    return {
+      id_Dodelitve: assignment.id,
+      id_Projekt: assignment.idProjekt,
+      id_Zaposleni: assignment.idZaposleni,
+    };
+  } catch (error) {
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      error.code === "P2002"
+    ) {
+      throw new AssignmentError("DUPLICATE_ASSIGNMENT");
+    }
+
+    throw error;
+  }
+}
+
+export async function deleteProjectAssignment(
+  projectId: number,
+  managerId: number,
+  employeeId: number,
+) {
+  const project = await prisma.projekt.findUnique({
+    where: { id: projectId },
+    select: { idVodjaProjekta: true },
+  });
+
+  if (!project) throw new AssignmentError("PROJECT_NOT_FOUND");
+  if (project.idVodjaProjekta !== managerId) {
+    throw new AssignmentError("NOT_MANAGER");
+  }
+
+  const result = await prisma.dodelitev.deleteMany({
+    where: {
+      idProjekt: projectId,
+      idZaposleni: employeeId,
+    },
+  });
+
+  if (result.count === 0) {
+    throw new AssignmentError("ASSIGNMENT_NOT_FOUND");
+  }
 }
